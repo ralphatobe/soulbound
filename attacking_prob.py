@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.special import binom
 import matplotlib.pyplot as plt
+from collections import Counter
 
 
 def at_least_m_of_n(num_succ, num_roll, succ_prob, fail_prob):
@@ -12,6 +13,16 @@ def at_least_m_of_n(num_succ, num_roll, succ_prob, fail_prob):
 
 def exactly_m_of_n(num_succ, num_roll, succ_prob, fail_prob):
   return binom(num_roll,num_succ) * (succ_prob)**num_succ * (fail_prob)**(num_roll-num_succ)
+
+
+def recurse(total, current):
+  combos = []
+  for j in range(current[-1], total+1):
+    if total - (sum(current)+j) >= 0:
+      combos.append(current+[j])
+      new = recurse(total, current+[j])
+      combos.extend(new)
+  return combos
 
 
 def attack(body, ballistic_skill, accuracy, defense, talents, dual_wielding, weapon_damage, armour):
@@ -41,6 +52,7 @@ def attack(body, ballistic_skill, accuracy, defense, talents, dual_wielding, wea
     damage_range += armour
 
   probabilities = np.zeros((ambidextrous, damage_range+1))
+  print(probabilities.shape)
   for i in range(ambidextrous):
     if 'Ambidextrous' in talents:
       dice_pool = dice_pool_base + i + 1
@@ -53,6 +65,45 @@ def attack(body, ballistic_skill, accuracy, defense, talents, dual_wielding, wea
       
 
       foci_prob = np.zeros(ballistic_skill[1])
+
+      combos = []
+      for k in range(1,ballistic_skill[1]+1):
+        combos.append([k])
+        sets = recurse(ballistic_skill[1], [k])
+        combos.extend(sets)
+
+      print(combos)
+
+      for combo in combos:
+        print(j, dice_pool, dn, combo)
+        if j + len(combo) <= dice_pool:
+          prob = 1
+          count = Counter(combo)
+          # values below the max are always fixed
+          for k in range(1,max(combo)):
+            if dn > k:
+              prob *= exactly_m_of_n(count[k], dice_pool-j, 1/(dn-k), (dn-(k+1))/(dn-k))
+
+          # remaining foci cannot be used
+          for k in range(max(combo), ballistic_skill[1]-sum(combo)+1):
+            print(k)
+            if dn > k:
+              prob *= exactly_m_of_n(0, dice_pool-j-sum(combo), 1/(dn-k), (dn-(k+1))/(dn-k))
+
+
+
+          # max value is only fixed if enough foci are available to add another max value
+          if dn > max(combo):
+            if sum(combo) + max(combo) > ballistic_skill[1]:
+              # prob *= base_prob * at_least_m_of_n(count[max(combo)], dice_pool-j, 1/(dn-max(combo)), (dn-(max(combo)+1))/(dn-max(combo)))
+              prob *= at_least_m_of_n(count[max(combo)], dice_pool-j, 1/(dn-max(combo)), (dn-(max(combo)+1))/(dn-max(combo)))
+            else:
+              # prob *= base_prob * exactly_m_of_n(count[max(combo)], dice_pool-j, 1/(dn-max(combo)), (dn-(max(combo)+1))/(dn-max(combo)))
+              prob *= exactly_m_of_n(count[max(combo)], dice_pool-j, 1/(dn-max(combo)), (dn-(max(combo)+1))/(dn-max(combo)))
+
+          print('auto prob', len(combo)-1, prob)
+          # foci_prob[len(combo)-1] += prob
+
       # focus calculations
       if j + 1 <= dice_pool:
         if ballistic_skill[1] == 1:
@@ -60,6 +111,7 @@ def attack(body, ballistic_skill, accuracy, defense, talents, dual_wielding, wea
           # at least 1 DN-1
           focus_1_1 = base_prob * at_least_m_of_n(1, dice_pool-j, 1/(dn-1), (dn-2)/(dn-1))
           # redirect to appropriate success bin
+          print('foci prob', 0, focus_1_1)
           foci_prob[0] += focus_1_1
 
         elif ballistic_skill[1] == 2:
@@ -67,11 +119,13 @@ def attack(body, ballistic_skill, accuracy, defense, talents, dual_wielding, wea
           # exactly 1 DN-1
           focus_1_1 = base_prob * exactly_m_of_n(1, dice_pool-j, 1/(dn-1), (dn-2)/(dn-1))
           # redirect to appropriate success bin
+          print('foci prob', 0, focus_1_1)
           foci_prob[0] += focus_1_1
           if dn > 2:
             # exactly 0 DN-1 and at least 1 DN-2
             focus_1_2 = base_prob * exactly_m_of_n(0, dice_pool-j, 1/(dn-1), (dn-2)/(dn-1)) * at_least_m_of_n(1, dice_pool-j, 1/(dn-2), (dn-3)/(dn-2))
             # redirect to appropriate success bin
+            print('foci prob', 0, focus_1_2)
             foci_prob[0] += focus_1_2
 
           # focus variants for gaining 2 success
@@ -79,6 +133,7 @@ def attack(body, ballistic_skill, accuracy, defense, talents, dual_wielding, wea
             # at least 2 DN-1
             focus_2_2 = base_prob * at_least_m_of_n(2, dice_pool-j, 1/(dn-1), (dn-2)/(dn-1))
             # redirect to appropriate success bin
+            print('foci prob', 1, focus_2_2)
             foci_prob[1] += focus_2_2
 
         elif ballistic_skill[1] == 3:
@@ -89,11 +144,14 @@ def attack(body, ballistic_skill, accuracy, defense, talents, dual_wielding, wea
             # exactly 0 DN-1 and at least 1 DN-2
             focus_1_2 = base_prob * exactly_m_of_n(0, dice_pool-j, 1/(dn-1), (dn-2)/(dn-1)) * at_least_m_of_n(1, dice_pool-j, 1/(dn-2), (dn-3)/(dn-2))
             # redirect to appropriate success bin
+            print('foci prob', 0, focus_1_1)
+            print('foci prob', 0, focus_1_2)
             foci_prob[0] += focus_1_1 + focus_1_2
           if dn > 3:
             # exactly 0 DN-1 and exactly 0 DN-2 and at least 1 DN-3
             focus_1_3 = base_prob * exactly_m_of_n(0, dice_pool-j, 1/(dn-1), (dn-2)/(dn-1)) * exactly_m_of_n(0, dice_pool-j, 1/(dn-2), (dn-3)/(dn-2)) * at_least_m_of_n(1, dice_pool-j, 1/(dn-3), (dn-4)/(dn-3))
             # redirect to appropriate success bin
+            print('foci prob', 0, focus_1_3)
             foci_prob[0] += focus_1_3
 
           # focus variants for gaining 2 successes
@@ -101,11 +159,13 @@ def attack(body, ballistic_skill, accuracy, defense, talents, dual_wielding, wea
             # exactly 2 DN-1
             focus_2_2 = base_prob * exactly_m_of_n(2, dice_pool-j, 1/(dn-1), (dn-2)/(dn-1))
             # redirect to appropriate success bin
+            print('foci prob', 1, focus_2_2)
             foci_prob[1] += focus_2_2
             if dn > 2:
               # exactly 1 DN-1 and at least 1 DN-2
               focus_2_3 = base_prob * exactly_m_of_n(1, dice_pool-j, 1/(dn-1), (dn-2)/(dn-1)) * at_least_m_of_n(1, dice_pool-j-1, 1/(dn-2), (dn-3)/(dn-2))
               # redirect to appropriate success bin
+              print('foci prob', 1, focus_2_3)
               foci_prob[1] += focus_2_3
 
           # focus variants for gaining 3 successes
@@ -113,6 +173,7 @@ def attack(body, ballistic_skill, accuracy, defense, talents, dual_wielding, wea
             # at least 3 DN-1
             focus_3_3 = base_prob * at_least_m_of_n(3, dice_pool-j, 1/(dn-1), (dn-2)/(dn-1))
             # redirect to appropriate success bin
+            print('foci prob', 2, focus_3_3)
             foci_prob[2] += focus_3_3
 
 
@@ -163,8 +224,8 @@ accuracy = 3
 defense = 3
 talents = []
 # talents = ['Pierce Armour']
-# talents = ['Ambidextrous']
-talents = ['Gunslinger']
+talents = ['Ambidextrous']
+# talents = ['Gunslinger']
 # talents = ['Ambidextrous', 'Pierce Armour']
 # talents = ['Pierce Armour', 'Gunslinger']
 # talents = ['Ambidextrous', 'Gunslinger']

@@ -91,22 +91,58 @@ def craft(body, crafting, dn):
     # print(succ_prob)
     probabilities[i:i+crafting[1]+1] += succ_prob
 
-  if dn[1] <= dice_pool:
-    print('Completion likelihood:', np.sum(probabilities[dn[1]:]))
+  # if dn[1] <= dice_pool:
+  #   print('Completion likelihood:', 100*np.sum(probabilities[dn[1]:]))
+  # else:
+  #   print('Completion likelihood: 0.00%')
 
-  print('Expected successes:', np.matmul(range(dice_pool+1), probabilities[:-crafting[-1]]))
+  # print('Expected successes:', np.matmul(range(dice_pool+1), probabilities[:-crafting[-1]]))
   
   # plt.bar(range(dice_pool+1), probabilities[:-crafting[1]])
   # plt.show()
 
   return probabilities[:-crafting[1]]
 
+def extended_test(attribute, skill, dn, test):
+  # set dice pool size
+  dice_pool = attribute + skill[0]
 
+  # initialize probabilities
+  extended_probs = np.zeros(dice_pool*3+1)
+  extended_probs[0] = 1.0
+
+  # roll dice pool three time for extended tests
+  for _ in range(3):
+    # reset temporary variable
+    probs = np.zeros(dice_pool*3+1)
+    # iterate over all previous possibilities
+    for i, prob in enumerate(extended_probs):
+      # ignore impossible cases
+      if prob > 0:
+        # get success probabilities for this test
+        test_probs = test(attribute, skill, dn)
+        # combine all possibilities
+        probs[i:i+len(test_probs)] += prob * test_probs
+    # update variable
+    extended_probs = probs
+
+  # give user likelihoods
+  if dn[1] <= dice_pool*3:
+    print('Completion likelihood:', 100*np.sum(probs[dn[1]:]))
+  else:
+    print('Completion likelihood: 0.00%')
+
+  print('Expected successes:', np.matmul(range(dice_pool*3+1), probs))
+
+  return extended_probs
 
 
 
 body = 4
 crafting = [2, 1]
-dn = [5, 3]
+dn = [5, 6]
 
-probs = craft(body, crafting, dn)
+
+probs = extended_test(body, crafting, dn, craft)
+
+print(probs)
