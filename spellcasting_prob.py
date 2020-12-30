@@ -44,7 +44,7 @@ def test(attribute, skill, dn, verbose=True):
           # exactly 0 DN-1 and at least 1 DN-2
           focus_1_2 = base_prob * exactly_m_of_n(0, dice_pool-i, 1/(dn[0]-1), (dn[0]-2)/(dn[0]-1)) * at_least_m_of_n(1, dice_pool-i, 1/(dn[0]-2), (dn[0]-3)/(dn[0]-2))
           # redirect to appropriate success bin
-          foci_prob[1] += focus_1_2
+          foci_prob[0] += focus_1_2
 
         # focus variants for gaining 2 success
         if i + 2 <= int(dice_pool):
@@ -64,12 +64,12 @@ def test(attribute, skill, dn, verbose=True):
           # exactly 0 DN-1 and at least 1 DN-2
           focus_1_2 = base_prob * exactly_m_of_n(0, dice_pool-i, 1/(dn[0]-1), (dn[0]-2)/(dn[0]-1)) * at_least_m_of_n(1, dice_pool-i, 1/(dn[0]-2), (dn[0]-3)/(dn[0]-2))
           # redirect to appropriate success bin
-          foci_prob[1] += focus_1_2
+          foci_prob[0] += focus_1_2
         if dn[0] > 3:
           # exactly 0 DN-1 and exactly 0 DN-2 and at least 1 DN-3
           focus_1_3 = base_prob * exactly_m_of_n(0, dice_pool-i, 1/(dn[0]-1), (dn[0]-2)/(dn[0]-1)) * exactly_m_of_n(0, dice_pool-i, 1/(dn[0]-2), (dn[0]-3)/(dn[0]-2)) * at_least_m_of_n(1, dice_pool-i, 1/(dn[0]-3), (dn[0]-4)/(dn[0]-3))
           # redirect to appropriate success bin
-          foci_prob[2] += focus_1_3
+          foci_prob[0] += focus_1_3
 
         # focus variants for gaining 2 successes
         if i + 2 <= int(dice_pool):
@@ -81,7 +81,7 @@ def test(attribute, skill, dn, verbose=True):
             # exactly 1 DN-1 and at least 1 DN-2
             focus_2_3 = base_prob * exactly_m_of_n(1, dice_pool-i, 1/(dn[0]-1), (dn[0]-2)/(dn[0]-1)) * at_least_m_of_n(1, dice_pool-i-1, 1/(dn[0]-2), (dn[0]-3)/(dn[0]-2))
             # redirect to appropriate success bin
-            foci_prob[2] += focus_2_3
+            foci_prob[1] += focus_2_3
 
         # focus variants for gaining 3 successes
         if i + 3 <= int(dice_pool):
@@ -100,13 +100,13 @@ def test(attribute, skill, dn, verbose=True):
 
     print('Expected successes: {:2.3}'.format(np.matmul(range(dice_pool+1), probabilities[:dice_pool+1])))
     
-    plt.bar(range(dice_pool+1), probabilities[:dice_pool+1])
-    plt.xlabel('Number of Successes')
-    plt.ylabel('Likelihood')
-    plt.show()
+    # plt.bar(range(dice_pool+1), probabilities[:dice_pool+1])
+    # plt.xlabel('Number of Successes')
+    # plt.ylabel('Likelihood')
+    # plt.show()
 
-    # for prob in probabilities[:dice_pool+1]:
-    #   print('{:2.2%}'.format(prob))
+    for prob in probabilities[:dice_pool+1]:
+      print('{:2.2%}'.format(prob))
 
   return probabilities[:dice_pool+1]
 
@@ -115,16 +115,27 @@ def test(attribute, skill, dn, verbose=True):
 def extended_test(attribute, skill, dn, verbose=True):
   # find success probabilities for given dn difficulty
   probs = test(attribute, skill, dn, verbose=False)
-  print(probs)
 
   # set dice pool size
   dice_pool = attribute + skill[0]
 
-  # initialize probabilities
+  # # initialize probabilities
+  # probabilities = np.zeros(dice_pool*3+1)
+  # probabilities[0] = 1.0
+
+  # for _ in range(3):
+  #   temp = np.zeros(dice_pool*3+1)
+
+  #   for i, prob in enumerate(probabilities):
+  #     if prob > 0:
+  #       temp[i:i+probs.size] += prob*probs
+
+  #   probabilities = temp
+
   probabilities = np.ones(1)
 
   for _ in range(3):
-    probabilities = np.convolve(probs, probabilities)
+    probabilities = np.convolve(probabilities, probs)
 
   if verbose:
     print('Success likelihood: {:2.2%}'.format(np.sum(probabilities[dn[1]:])))
@@ -139,20 +150,17 @@ def extended_test(attribute, skill, dn, verbose=True):
     # for prob in probabilities:
     #   print('{:2.2%}'.format(prob))
 
-  return probabilities
-
-
-
+  return probabilities[:dice_pool*3+1]
 
 
 
 # mind = 4
-# channelling = [2,3]
-# dn = [5,3]
+# channelling = [1,2]
+# dn = [5,1]
 
 # test(mind, channelling, dn)
 
-# channelling = [3,2]
+# channelling = [2,1]
 
 # test(mind, channelling, dn)
 
@@ -183,3 +191,10 @@ extended_test(soul, crafting, dn)
 crafting = [2,2]
 
 extended_test(soul, crafting, dn)
+
+
+# soul = 2
+# crafting = [1,1]
+# dn = [5,1]
+
+# test(soul, crafting, dn)
