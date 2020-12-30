@@ -100,13 +100,13 @@ def test(attribute, skill, dn, verbose=True):
 
     print('Expected successes: {:2.3}'.format(np.matmul(range(dice_pool+1), probabilities[:dice_pool+1])))
     
-    # plt.bar(range(dice_pool+1), probabilities[:dice_pool+1])
-    # plt.xlabel('Number of Successes')
-    # plt.ylabel('Likelihood')
-    # plt.show()
+    plt.bar(range(dice_pool+1), probabilities[:dice_pool+1])
+    plt.xlabel('Number of Successes')
+    plt.ylabel('Likelihood')
+    plt.show()
 
-    for prob in probabilities[:dice_pool+1]:
-      print('{:2.2%}'.format(prob))
+    # for prob in probabilities[:dice_pool+1]:
+    #   print('{:2.2%}'.format(prob))
 
   return probabilities[:dice_pool+1]
 
@@ -118,19 +118,6 @@ def extended_test(attribute, skill, dn, verbose=True):
 
   # set dice pool size
   dice_pool = attribute + skill[0]
-
-  # # initialize probabilities
-  # probabilities = np.zeros(dice_pool*3+1)
-  # probabilities[0] = 1.0
-
-  # for _ in range(3):
-  #   temp = np.zeros(dice_pool*3+1)
-
-  #   for i, prob in enumerate(probabilities):
-  #     if prob > 0:
-  #       temp[i:i+probs.size] += prob*probs
-
-  #   probabilities = temp
 
   probabilities = np.ones(1)
 
