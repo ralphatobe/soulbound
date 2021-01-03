@@ -14,93 +14,88 @@ def exactly_m_of_n(num_succ, num_roll, succ_prob, fail_prob):
   return binom(num_roll,num_succ) * (succ_prob)**num_succ * (fail_prob)**(num_roll-num_succ)
 
 
-def test(attribute, skill, dn, verbose=True):
+def test_full(dice_pool, skill, dn, verbose=True):
 
-  dice_pool = attribute + skill[0]
-
-  probabilities = np.zeros(dice_pool+skill[1]+1)
+  probabilities = np.zeros((int(dice_pool+skill[1]+1), skill[1]+1))
   for i in range(int(dice_pool+1)):
-    # baseline probability
     base_prob = exactly_m_of_n(i, dice_pool, ((7-dn[0])/6), ((dn[0]-1)/6))
+    foci_prob = np.zeros((skill[1], skill[1]))
     # focus calculations
-    foci_prob = np.zeros(skill[1])
     if i + 1 <= int(dice_pool):
-      # 1 focus in skill
       if skill[1] == 1:
         # focus variants for gaining 1 success
         # at least 1 DN-1
         focus_1_1 = base_prob * at_least_m_of_n(1, dice_pool-i, 1/(dn[0]-1), (dn[0]-2)/(dn[0]-1))
         # redirect to appropriate success bin
-        foci_prob[0] += focus_1_1
+        foci_prob[0,0] += focus_1_1
 
-      # 2 foci in skill
       elif skill[1] == 2:
         # focus variants for gaining 1 success
         # exactly 1 DN-1
         focus_1_1 = base_prob * exactly_m_of_n(1, dice_pool-i, 1/(dn[0]-1), (dn[0]-2)/(dn[0]-1))
         # redirect to appropriate success bin
-        foci_prob[0] += focus_1_1
+        foci_prob[0,0] += focus_1_1
         if dn[0] > 2:
           # exactly 0 DN-1 and at least 1 DN-2
           focus_1_2 = base_prob * exactly_m_of_n(0, dice_pool-i, 1/(dn[0]-1), (dn[0]-2)/(dn[0]-1)) * at_least_m_of_n(1, dice_pool-i, 1/(dn[0]-2), (dn[0]-3)/(dn[0]-2))
           # redirect to appropriate success bin
-          foci_prob[0] += focus_1_2
+          foci_prob[0,1] += focus_1_2
 
         # focus variants for gaining 2 success
         if i + 2 <= int(dice_pool):
           # at least 2 DN-1
           focus_2_2 = base_prob * at_least_m_of_n(2, dice_pool-i, 1/(dn[0]-1), (dn[0]-2)/(dn[0]-1))
           # redirect to appropriate success bin
-          foci_prob[1] += focus_2_2
+          foci_prob[1,1] += focus_2_2
 
-      # 3 foci in skill
       elif skill[1] == 3:
         # focus variants for gaining 1 success
         if dn[0] > 2:
           # exactly 1 DN-1 and exactly 0 DN-2
           focus_1_1 = base_prob * exactly_m_of_n(1, dice_pool-i, 1/(dn[0]-1), (dn[0]-2)/(dn[0]-1)) * exactly_m_of_n(0, dice_pool-i-1, 1/(dn[0]-2), (dn[0]-3)/(dn[0]-2))
           # redirect to appropriate success bin
-          foci_prob[0] += focus_1_1
+          foci_prob[0,0] += focus_1_1
           # exactly 0 DN-1 and at least 1 DN-2
           focus_1_2 = base_prob * exactly_m_of_n(0, dice_pool-i, 1/(dn[0]-1), (dn[0]-2)/(dn[0]-1)) * at_least_m_of_n(1, dice_pool-i, 1/(dn[0]-2), (dn[0]-3)/(dn[0]-2))
           # redirect to appropriate success bin
-          foci_prob[0] += focus_1_2
+          foci_prob[0,1] += focus_1_2
         if dn[0] > 3:
           # exactly 0 DN-1 and exactly 0 DN-2 and at least 1 DN-3
           focus_1_3 = base_prob * exactly_m_of_n(0, dice_pool-i, 1/(dn[0]-1), (dn[0]-2)/(dn[0]-1)) * exactly_m_of_n(0, dice_pool-i, 1/(dn[0]-2), (dn[0]-3)/(dn[0]-2)) * at_least_m_of_n(1, dice_pool-i, 1/(dn[0]-3), (dn[0]-4)/(dn[0]-3))
           # redirect to appropriate success bin
-          foci_prob[0] += focus_1_3
+          foci_prob[0,2] += focus_1_3
 
         # focus variants for gaining 2 successes
         if i + 2 <= int(dice_pool):
           # exactly 2 DN-1
           focus_2_2 = base_prob * exactly_m_of_n(2, dice_pool-i, 1/(dn[0]-1), (dn[0]-2)/(dn[0]-1))
           # redirect to appropriate success bin
-          foci_prob[1] += focus_2_2
+          foci_prob[1,1] += focus_2_2
           if dn[0] > 2:
             # exactly 1 DN-1 and at least 1 DN-2
             focus_2_3 = base_prob * exactly_m_of_n(1, dice_pool-i, 1/(dn[0]-1), (dn[0]-2)/(dn[0]-1)) * at_least_m_of_n(1, dice_pool-i-1, 1/(dn[0]-2), (dn[0]-3)/(dn[0]-2))
             # redirect to appropriate success bin
-            foci_prob[1] += focus_2_3
+            foci_prob[1,2] += focus_2_3
 
         # focus variants for gaining 3 successes
         if i + 3 <= int(dice_pool):
           # at least 3 DN-1
           focus_3_3 = base_prob * at_least_m_of_n(3, dice_pool-i, 1/(dn[0]-1), (dn[0]-2)/(dn[0]-1))
           # redirect to appropriate success bin
-          foci_prob[2] += focus_3_3
+          foci_prob[2,2] += focus_3_3
 
     # properly assign probabilities
     base_prob -= np.sum(foci_prob)
-    succ_prob = np.append(base_prob, foci_prob)
-    probabilities[i:i+skill[1]+1] += succ_prob
-
-  if verbose:
-    print('Success likelihood: {:2.2%}'.format(np.sum(probabilities[dn[1]:])))
-
-    print('Expected successes: {:2.3}'.format(np.matmul(range(dice_pool+1), probabilities[:dice_pool+1])))
+    # track probabilities and foci count
+    probabilities[i,0] += base_prob
+    probabilities[i+1:i+skill[1]+1,1:] += foci_prob
     
-    plt.bar(range(dice_pool+1), probabilities[:dice_pool+1])
+  if verbose:
+    print('Success likelihood: {:2.2%}'.format(np.sum(probabilities[dn[1]:,:])))
+
+    print('Expected successes: {:2.3}'.format(np.matmul(range(dice_pool+1), np.sum(probabilities[:dice_pool+1], axis=1))))
+    
+    plt.bar(range(dice_pool+1), np.sum(probabilities[:dice_pool+1], axis=1))
     plt.xlabel('Number of Successes')
     plt.ylabel('Likelihood')
     plt.show()
@@ -108,19 +103,24 @@ def test(attribute, skill, dn, verbose=True):
     # for prob in probabilities[:dice_pool+1]:
     #   print('{:2.2%}'.format(prob))
 
-  return probabilities[:dice_pool+1]
+  return probabilities[:-skill[1],:]
 
 
+def test(dice_pool, skill, dn, verbose=True):
 
-def extended_test(attribute, skill, dn, verbose=True):
+  probabilities = test_full(dice_pool, skill, dn, verbose=verbose)
+
+  probabilities = np.sum(probabilities, axis=1)
+
+  return probabilities
+
+
+def extended_test(dice_pool, skill, dn, verbose=True):
   # find success probabilities for given dn difficulty
-  probs = test(attribute, skill, dn, verbose=False)
+  probs = test(dice_pool, skill, dn, verbose=False)
 
-  # set dice pool size
-  dice_pool = attribute + skill[0]
-
+  # compute probabilities across three tests
   probabilities = np.ones(1)
-
   for _ in range(3):
     probabilities = np.convolve(probabilities, probs)
 
@@ -141,47 +141,49 @@ def extended_test(attribute, skill, dn, verbose=True):
 
 
 
-# mind = 4
-# channelling = [1,2]
-# dn = [5,1]
+if __name__ == "__main__":
 
-# test(mind, channelling, dn)
+  # mind = 4
+  # channelling = [1,2]
+  # dn = [5,1]
 
-# channelling = [2,1]
+  # test(mind, channelling, dn)
 
-# test(mind, channelling, dn)
+  # channelling = [2,1]
 
-# mind = 4
-# medicine = [1,2]
-# dn = [4,3]
+  # test(mind, channelling, dn)
 
-# test(mind, medicine, dn)
+  # mind = 4
+  # medicine = [1,2]
+  # dn = [4,3]
 
-# medicine = [2,1]
+  # test(mind, medicine, dn)
 
-# test(mind, medicine, dn)
+  # medicine = [2,1]
 
-soul = 2
-crafting = [1,1]
-dn = [4,6]
+  # test(mind, medicine, dn)
 
-extended_test(soul, crafting, dn)
+  # soul = 2
+  # dn = [4,6]
 
-crafting = [2,1]
+  # skill = [1,1]
+  # extended_test(soul, skill, dn)
 
-extended_test(soul, crafting, dn)
+  # skill = [2,1]
+  # extended_test(soul, skill, dn)
 
-crafting = [1,2]
+  # skill = [1,2]
+  # extended_test(soul, skill, dn)
 
-extended_test(soul, crafting, dn)
+  # skill = [2,2]
+  # extended_test(soul, skill, dn)
 
-crafting = [2,2]
+  # skill = [3,2]
+  # extended_test(soul, skill, dn)
 
-extended_test(soul, crafting, dn)
 
+  soul = 2
+  skill = [2,2]
+  dn = [5,1]
 
-# soul = 2
-# crafting = [1,1]
-# dn = [5,1]
-
-# test(soul, crafting, dn)
+  test(soul+skill[0], skill, dn)
