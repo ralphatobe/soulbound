@@ -1,8 +1,101 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from collections import Counter
 
-from utils import test, test_full, at_least_m_of_n, exactly_m_of_n
+from utils import test_full, at_least_m_of_n, exactly_m_of_n
+
+
+
+def pierce_armour_calculation(succ_prob, dn, armour, damage_range):
+  # create new variable to return
+  probabilities = np.zeros(damage_range+1)
+  # iterate over all possible number of successes
+  for x in range(succ_prob.shape[0]):
+    # iterate over all possible number of remaining foci
+    for y in range(succ_prob.shape[1]):
+      # iterate over all possible number of foci-generated successes
+      for z in range(succ_prob.shape[2]):
+        # skip impossible cases
+        if succ_prob[x,y,z] > 0:
+          pierce_prob = 0
+          for j in range(x-z+1):
+            # exactly j pierce of x-z dice
+            base_prob = exactly_m_of_n(j, x-z, 1/(7-dn), (6-dn)/(7-dn), known_succ=z*int(6 == dn))
+            # track total pierce prob
+            pierce_prob += base_prob
+            # focus calculations
+            if  j + z + 1 <= x and dn < 6 and y > 0:
+              foci_prob = np.zeros(y)
+              if y == 1:
+                # focus variants for gaining 1 success
+                # at least 1 DN-1
+                foci_prob[0] += at_least_m_of_n(1, x-j-z, 1/(6-dn), (5-dn)/(6-dn), known_succ=z*int(5 == dn))
+
+              elif y == 2:
+                # focus variants for gaining 1 success
+                # exactly 1 DN-1
+                foci_prob[0] += exactly_m_of_n(1, x-j-z, 1/(6-dn), (5-dn)/(6-dn), known_succ=z*int(5 == dn))
+                if dn < 5:
+                  # exactly 0 DN-1 and at least 1 DN-2
+                  foci_prob[0] += exactly_m_of_n(0, x-j-z, 1/(6-dn), (5-dn)/(6-dn), known_succ=z*int(5 == dn)) * at_least_m_of_n(1, x-j-z, 1/(5-dn), (4-dn)/(5-dn), known_succ=z*int(4 == dn))
+
+                # focus variants for gaining 2 success
+                if j + z + 2 <= x:
+                  # at least 2 DN-1
+                  foci_prob[1] += at_least_m_of_n(2, x-j-z, 1/(6-dn), (5-dn)/(6-dn), known_succ=z*int(5 == dn))
+
+              elif y == 3:
+                # focus variants for gaining 1 success
+                if dn < 5:
+                  # exactly 1 DN-1 and exactly 0 DN-2
+                  foci_prob[0] += exactly_m_of_n(1, x-j-z, 1/(6-dn), (5-dn)/(6-dn), known_succ=z*int(5 == dn)) * exactly_m_of_n(0, x-j-z-1, 1/(5-dn), (4-dn)/(5-dn), known_succ=z*int(4 == dn))
+                  # exactly 0 DN-1 and at least 1 DN-2
+                  foci_prob[0] += exactly_m_of_n(0, x-j-z, 1/(6-dn), (5-dn)/(6-dn), known_succ=z*int(5 == dn)) * at_least_m_of_n(1, x-j-z, 1/(5-dn), (4-dn)/(5-dn), known_succ=z*int(4 == dn))
+                if dn < 4:
+                  # exactly 0 DN-1 and exactly 0 DN-2 and at least 1 DN-3
+                  foci_prob[0] += exactly_m_of_n(0, x-j-z, 1/(6-dn), (5-dn)/(6-dn), known_succ=z*int(5 == dn)) * exactly_m_of_n(0, x-j-z, 1/(5-dn), (4-dn)/(5-dn), known_succ=z*int(4 == dn)) * at_least_m_of_n(1, x-j-z, 1/(4-dn), (3-dn)/(4-dn), known_succ=z*int(3 == dn))
+
+                # focus variants for gaining 2 successes
+                if j + z + 2 <= x:
+                  # exactly 2 DN-1
+                  foci_prob[1] += exactly_m_of_n(2, x-j-z, 1/(6-dn), (5-dn)/(6-dn), known_succ=z*int(5 == dn))
+                  if dn < 5:
+                    # exactly 1 DN-1 and at least 1 DN-2
+                    foci_prob[1] += exactly_m_of_n(1, x-j-z, 1/(6-dn), (5-dn)/(6-dn), known_succ=z*int(5 == dn)) * at_least_m_of_n(1, x-j-z-1, 1/(5-dn), (4-dn)/(5-dn), known_succ=z*int(4 == dn))
+
+                # focus variants for gaining 3 successes
+                if j + z + 3 <= x:
+                  # at least 3 DN-1
+                  foci_prob[2] += at_least_m_of_n(3, x-j-z, 1/(6-dn), (5-dn)/(6-dn), known_succ=z*int(5 == dn))
+
+              # store original probability for double checking
+              orig_base = base_prob
+
+              # compound probabilities
+              foci_prob = base_prob * foci_prob
+              # remove new cases from base probability
+              base_prob -= np.sum(foci_prob)
+              # combine all success probabilities
+              probs = np.concatenate(([base_prob], foci_prob))
+
+              # guarantee calculations aren't completely incorrect
+              assert(abs(np.sum(probs) - orig_base) < 0.01)
+
+              # iterate over all computed probabilities
+              for k, prob in enumerate(probs):
+                # assign probability to correct success slot and compound with success probability
+                probabilities[x+min(min(x,j+k), armour)] += succ_prob[x,y,z] * prob
+
+            # no focus calculations
+            else: 
+              # assign probability to correct success slot and compound with success probability
+              probabilities[x+min(min(x,j), armour)] += succ_prob[x,y,z] * base_prob
+          
+          # current success probability cannot pierce for different values
+          if pierce_prob == 0:
+            # assign probability to correct success slot and compound with success probability                
+            probabilities[x+min(x, armour)] += succ_prob[x,y,z]
+
+  return probabilities
 
 
 def attack(attribute, attack_skill, combat_ability, defense, talents, dual_wielding, weapon_damage, armour, verbose=True):
@@ -33,7 +126,7 @@ def attack(attribute, attack_skill, combat_ability, defense, talents, dual_wield
 
   # calculate the hit dn
   dn = 4 - min([max([combat_ability - defense, -2]), 2])
-  # print('DN:', dn)
+  print('DN:', dn)
 
   # initialize full attack probabilities
   probabilities = np.zeros((ambidextrous, damage_range+1))
@@ -47,56 +140,16 @@ def attack(attribute, attack_skill, combat_ability, defense, talents, dual_wield
       dice_pool = dice_pool_base
 
     # compute hit likelihoods
-    succ_prob = test(dice_pool, attack_skill, [dn], verbose=False)
+    succ_prob = test_full(dice_pool, attack_skill, [dn], verbose=False)
+    assert(abs(np.sum(succ_prob) - 1.0) < 0.01)
 
     # integrate armour piercing modifications
-    # this calculation is still imperfect
-    # it doesn't include spare focus that could be used to pierce armour
-    # it also doesn't account for dice upgraded by focus to the dn
-    # a future version will utilize test_full and fully optimal
     if 'Pierce Armour' in talents:
-      for j in range(dice_pool+1):
-        pierce_prob = np.zeros(armour+1)
-        for k in range(armour+1):
-          if k <= j:
-            if k == armour:
-              # at least full armour pierce
-              pierce_prob[k] = at_least_m_of_n(k, j, 1/(6-dn+1), (6-dn)/(6-dn+1))
-            else:
-              # exactly k 6s in i successes
-              pierce_prob[k] = exactly_m_of_n(k, j, 1/(6-dn+1), (6-dn)/(6-dn+1))
-        probabilities[i,j:j+armour+1] += succ_prob[j] * pierce_prob
-
+      probabilities[i,:] = pierce_armour_calculation(succ_prob, dn, armour, damage_range)
     else:
-      probabilities[i,:dice_pool+1] += succ_prob
+      probabilities[i,:dice_pool+1] = np.sum(succ_prob, axis=(1,2))
 
-
-    # integrate armour piercing modifications
-    # this calculation is still imperfect
-    # it doesn't include spare focus that could be used to pierce armour
-    # a future version will utilize test_full and fully optimal
-    if 'Pierce Armour' in talents:
-      # iterate over all possible number of successes
-      for x in range(dice_pool+1):
-        # iterate over all possible number of remaining foci
-        for y in range(attack_skill[1]+1):
-          # iterate over all possible number of foci-generated successes
-          for z in range(attack_skill[1]+1):
-            pierce_prob = np.zeros(armour+1)
-            for a in range(armour+1):
-              if a <= x:
-                if a == armour:
-                  # at least full armour pierce
-                  pierce_prob[a] = at_least_m_of_n(a, x, 1/(6-dn+1), (6-dn)/(6-dn+1))
-                else:
-                  # exactly a 6s in i successes
-                  pierce_prob[a] = exactly_m_of_n(a, x, 1/(6-dn+1), (6-dn)/(6-dn+1))
-            probabilities[i,x:x+armour+1] += succ_prob[x] * pierce_prob
-
-    else:
-      probabilities[i,:dice_pool+1] += np.sum(probabilities, axis=(1,2))
-
-
+    assert(abs((np.sum(probabilities[i,:]) - 1.0)) < 0.01)
 
   # combine all ambidextrous options
   probabilities = np.average(probabilities, axis=0)
@@ -133,21 +186,21 @@ def attack(attribute, attack_skill, combat_ability, defense, talents, dual_wield
 if __name__ == "__main__":
 
   attribute = 4
-  attack_skill = [2, 1]
-  combat_ability = 3
-  defense = 4
+  attack_skill = [2, 2]
+  combat_ability = 4
+  defense = 3
   talents = []
-  # talents = ['Pierce Armour']
+  talents = ['Pierce Armour']
   # talents = ['Ambidextrous']
   # talents = ['Gunslinger']
   # talents = ['Ambidextrous', 'Pierce Armour']
   # talents = ['Pierce Armour', 'Gunslinger']
-  talents = ['Ambidextrous', 'Gunslinger']
+  # talents = ['Ambidextrous', 'Gunslinger']
   # talents = ['Ambidextrous', 'Gunslinger', 'Pierce Armour']
   # dual_wielding = True
   dual_wielding = False
   weapon_damage = 1
-  armour = 2
+  armour = 1
 
 
   probabilities = attack(attribute, attack_skill, combat_ability, defense, talents, dual_wielding, weapon_damage, armour)
