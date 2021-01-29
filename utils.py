@@ -153,11 +153,11 @@ def extended_test(dice_pool, skill, dn, verbose=True):
 
 if __name__ == "__main__":
 
-  # mind = 4
-  # channelling = [2,2]
-  # dn = [5,3]
+  mind = 4
+  channelling = [2,2]
+  dn = [5,3]
 
-  # test_full(mind + channelling[0], channelling, dn)
+  test_full(mind + channelling[0], channelling, dn)
 
   # mind = 3
   # soul = 4
@@ -183,14 +183,14 @@ if __name__ == "__main__":
 
   # test(mind, medicine, dn)
 
-  soul = 2
-  dn = [4,6]
+  # soul = 2
+  # dn = [4,6]
 
   # skill = [1,1]
   # extended_test(soul+skill[0], skill, dn)
 
-  skill = [2,1]
-  extended_test(soul+skill[0], skill, dn)
+  # skill = [2,1]
+  # extended_test(soul+skill[0], skill, dn)
 
   # skill = [1,2]
   # extended_test(soul+skill[0], skill, dn)
@@ -207,3 +207,9 @@ if __name__ == "__main__":
 
 
   # test(soul+skill[0], skill, dn)
+
+  # body = 4
+  # medicine = [1,2]
+  # dn = [4,3]
+
+  # test(mind, medicine, dn)

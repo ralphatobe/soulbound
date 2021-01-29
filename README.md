@@ -33,7 +33,6 @@ I generally implement features as they become useful to me, so these additional 
     * Underdog
   * Weapon traits:
     * Cleave
-    * Defensive
     * Ineffective
     * Penetrating
     * Rend

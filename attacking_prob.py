@@ -5,9 +5,9 @@ from utils import test_full, at_least_m_of_n, exactly_m_of_n
 
 
 
-def pierce_armour_calculation(succ_prob, dn, armour, damage_range):
+def six_prob_calculation(succ_prob, dn, damage_range):
   # create new variable to return
-  probabilities = np.zeros(damage_range+1)
+  probabilities = np.zeros((damage_range+1, damage_range+1))
   # iterate over all possible number of successes
   for x in range(succ_prob.shape[0]):
     # iterate over all possible number of remaining foci
@@ -16,12 +16,12 @@ def pierce_armour_calculation(succ_prob, dn, armour, damage_range):
       for z in range(succ_prob.shape[2]):
         # skip impossible cases
         if succ_prob[x,y,z] > 0:
-          pierce_prob = 0
+          six_prob = 0
           for j in range(x-z+1):
             # exactly j pierce of x-z dice
             base_prob = exactly_m_of_n(j, x-z, 1/(7-dn), (6-dn)/(7-dn), known_succ=z*int(6 == dn))
             # track total pierce prob
-            pierce_prob += base_prob
+            six_prob += base_prob
             # focus calculations
             if  j + z + 1 <= x and dn < 6 and y > 0:
               foci_prob = np.zeros(y)
@@ -83,28 +83,33 @@ def pierce_armour_calculation(succ_prob, dn, armour, damage_range):
               # iterate over all computed probabilities
               for k, prob in enumerate(probs):
                 # assign probability to correct success slot and compound with success probability
-                probabilities[x+min(min(x,j+k), armour)] += succ_prob[x,y,z] * prob
+                probabilities[j+k, x] += succ_prob[x,y,z] * prob
 
             # no focus calculations
             else: 
               # assign probability to correct success slot and compound with success probability
-              probabilities[x+min(min(x,j), armour)] += succ_prob[x,y,z] * base_prob
+              probabilities[j, x] += succ_prob[x,y,z] * base_prob
           
           # current success probability cannot pierce for different values
-          if pierce_prob == 0:
+          if six_prob == 0:
             # assign probability to correct success slot and compound with success probability                
-            probabilities[x+min(x, armour)] += succ_prob[x,y,z]
+            probabilities[0, x] += succ_prob[x,y,z]
+            # probabilities[x, 0] += succ_prob[x,y,z]
 
   return probabilities
 
 
-def attack(attribute, attack_skill, combat_ability, defense, talents, dual_wielding, weapon_damage, armour, verbose=True):
+def attack(attribute, attack_skill, combat_ability, defense, talents, dual_wielding, weapon_damage, weapon_traits, armour, verbose=True):
 
   # calculate the base dice pool size
   dice_pool_base = attribute + attack_skill[0]
   
   # calculate the base damage range
   damage_range = dice_pool_base + attack_skill[1]
+
+  # account for weapon penetration
+  if 'Penetrating' in weapon_traits:
+    armour = max(0, armour-1)
 
   # modify weapon damage for dual wielding
   if dual_wielding:
@@ -129,7 +134,7 @@ def attack(attribute, attack_skill, combat_ability, defense, talents, dual_wield
   print('DN:', dn)
 
   # initialize full attack probabilities
-  probabilities = np.zeros((ambidextrous, damage_range+1))
+  probabilities = np.zeros((ambidextrous, damage_range+1, damage_range+1))
   # iterate over ambidextrous options
   # this method is overly brute force, but a better method would make my head hurt
   for i in range(ambidextrous):
@@ -141,18 +146,25 @@ def attack(attribute, attack_skill, combat_ability, defense, talents, dual_wield
 
     # compute hit likelihoods
     succ_prob = test_full(dice_pool, attack_skill, [dn], verbose=False)
+    succ_prob = six_prob_calculation(succ_prob, dn, damage_range)
     assert(abs(np.sum(succ_prob) - 1.0) < 0.01)
 
     # integrate armour piercing modifications
     if 'Pierce Armour' in talents:
-      probabilities[i,:] = pierce_armour_calculation(succ_prob, dn, armour, damage_range)
+      for num_six, probs in enumerate(succ_prob):
+        if min(num_six,armour) > 0:
+          probabilities[i,:,min(num_six,armour):] = probs[:-min(num_six,armour)]
+          probabilities[i,:,-1] += np.sum(probs[-min(num_six,armour):])
+        else:
+          probabilities[i,:,num_six] = probs
     else:
-      probabilities[i,:dice_pool+1] = np.sum(succ_prob, axis=(1,2))
+      probabilities[i,:,:] = np.swapaxes(succ_prob, 0, 1)
 
     assert(abs((np.sum(probabilities[i,:]) - 1.0)) < 0.01)
 
   # combine all ambidextrous options
-  probabilities = np.average(probabilities, axis=0)
+  probs = np.average(probabilities, axis=0)
+  probabilities = np.sum(probs, axis=-1)
 
   # create damage array
   damage = np.array(range(damage_range+1)) + np.array([0] + [weapon_damage]*(damage_range))
@@ -163,9 +175,10 @@ def attack(attribute, attack_skill, combat_ability, defense, talents, dual_wield
   else:
     damage_suffered = np.maximum(damage-armour, np.zeros(damage_range+1))
 
-  # truncate probabilities and damage suffered to possible ranges
-  probabilities = probabilities[:-attack_skill[1]]
-  damage_suffered = damage_suffered[:-attack_skill[1]]
+  if attack_skill[1] > 0:
+    # truncate probabilities and damage suffered to possible ranges
+    probabilities = probabilities[:-attack_skill[1]]
+    damage_suffered = damage_suffered[:-attack_skill[1]]
 
   # combine indices that deal zero damage
   probabilities = np.array([np.sum(probabilities[np.where(damage_suffered == 0)]), *probabilities[np.where(damage_suffered > 0)]])
@@ -177,7 +190,33 @@ def attack(attribute, attack_skill, combat_ability, defense, talents, dual_wield
     print('Expected Damage: {:2.3}'.format(np.matmul(probabilities, damage_suffered)))
 
     plt.bar(damage_suffered, probabilities)
+    plt.xlabel('Damage')
+    plt.ylabel('Likelihood')
     plt.show()
+
+    if 'Cleave' in weapon_traits:
+      print('Cleave likelihood: {:2.2%}'.format(np.sum(probs[:,1:])))
+
+      print('Expected Cleave Damage: {:2.3}'.format(np.matmul(np.sum(probs,axis=0), range(probs.shape[-1]))))
+
+      plt.bar(range(probs.shape[-1]), np.sum(probs,axis=0))
+      plt.xlabel('Cleave Damage')
+      plt.ylabel('Likelihood')
+      plt.show()
+
+
+    if 'Rend' in weapon_traits:
+      print('Rend likelihood: {:2.2%}'.format(np.sum(probs[:,1:])))
+
+      print('Expected Armour Destroyed: {:2.3}'.format(np.matmul(np.sum(probs,axis=0), range(probs.shape[-1]))))
+
+      plt.bar(range(probs.shape[-1]), np.sum(probs,axis=0))
+      plt.xlabel('Armour Rended')
+      plt.ylabel('Likelihood')
+      plt.show()
+
+    # if 'Crushing Blow' in talents:
+
 
   return probabilities
 
@@ -185,12 +224,12 @@ def attack(attribute, attack_skill, combat_ability, defense, talents, dual_wield
 
 if __name__ == "__main__":
 
-  attribute = 4
-  attack_skill = [2, 2]
-  combat_ability = 4
+  attribute = 3
+  attack_skill = [2, 1]
+  combat_ability = 3
   defense = 3
   talents = []
-  talents = ['Pierce Armour']
+  # talents = ['Pierce Armour']
   # talents = ['Ambidextrous']
   # talents = ['Gunslinger']
   # talents = ['Ambidextrous', 'Pierce Armour']
@@ -200,7 +239,11 @@ if __name__ == "__main__":
   # dual_wielding = True
   dual_wielding = False
   weapon_damage = 1
+  weapon_traits = []
+  weapon_traits = ['Penetrating', 'Cleave']
+  # weapon_traits = ['Rend']
+  # weapon_traits = ['Cleave', 'Ineffective', 'Penetrating', 'Rend', 'Spread']
   armour = 1
 
 
-  probabilities = attack(attribute, attack_skill, combat_ability, defense, talents, dual_wielding, weapon_damage, armour)
+  probabilities = attack(attribute, attack_skill, combat_ability, defense, talents, dual_wielding, weapon_damage, weapon_traits, armour)
