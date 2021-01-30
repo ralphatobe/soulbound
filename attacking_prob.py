@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 
 from utils import test_full, at_least_m_of_n, exactly_m_of_n
 
+ABILITY_LEVELS = ['Extraordinary', 'Superb', 'Great', 'Good', 'Average', 'Poor']
 
 
 def six_prob_calculation(succ_prob, dn, damage_range):
@@ -101,6 +102,8 @@ def six_prob_calculation(succ_prob, dn, damage_range):
 
 def attack(attribute, attack_skill, combat_ability, defense, talents, dual_wielding, weapon_damage, weapon_traits, armour, verbose=True):
 
+  print(weapon_traits)
+
   # calculate the base dice pool size
   dice_pool_base = attribute + attack_skill[0]
   
@@ -153,8 +156,8 @@ def attack(attribute, attack_skill, combat_ability, defense, talents, dual_wield
     if 'Pierce Armour' in talents:
       for num_six, probs in enumerate(succ_prob):
         if min(num_six,armour) > 0:
-          probabilities[i,:,min(num_six,armour):] = probs[:-min(num_six,armour)]
-          probabilities[i,:,-1] += np.sum(probs[-min(num_six,armour):])
+          probabilities[i,min(num_six,armour):,num_six] += probs[:-min(num_six,armour)]
+          probabilities[i,-1,num_six] += np.sum(probs[-min(num_six,armour):])
         else:
           probabilities[i,:,num_six] = probs
     else:
@@ -190,6 +193,7 @@ def attack(attribute, attack_skill, combat_ability, defense, talents, dual_wield
     print('Expected Damage: {:2.3}'.format(np.matmul(probabilities, damage_suffered)))
 
     plt.bar(damage_suffered, probabilities)
+    plt.title('Damage Distribution')
     plt.xlabel('Damage')
     plt.ylabel('Likelihood')
     plt.show()
@@ -200,6 +204,7 @@ def attack(attribute, attack_skill, combat_ability, defense, talents, dual_wield
       print('Expected Cleave Damage: {:2.3}'.format(np.matmul(np.sum(probs,axis=0), range(probs.shape[-1]))))
 
       plt.bar(range(probs.shape[-1]), np.sum(probs,axis=0))
+      plt.title('Cleave Distribution')
       plt.xlabel('Cleave Damage')
       plt.ylabel('Likelihood')
       plt.show()
@@ -211,6 +216,7 @@ def attack(attribute, attack_skill, combat_ability, defense, talents, dual_wield
       print('Expected Armour Destroyed: {:2.3}'.format(np.matmul(np.sum(probs,axis=0), range(probs.shape[-1]))))
 
       plt.bar(range(probs.shape[-1]), np.sum(probs,axis=0))
+      plt.title('Rend Distribution')
       plt.xlabel('Armour Rended')
       plt.ylabel('Likelihood')
       plt.show()
@@ -222,14 +228,20 @@ def attack(attribute, attack_skill, combat_ability, defense, talents, dual_wield
 
 
 
+def attack_tkinter(attribute, attack_skill, combat_ability, defense, talents, dual_wielding, weapon_damage, weapon_traits, armour, verbose=True):
+
+
+  attack(int(attribute.get()), (int(attack_skill[0].get()), int(attack_skill[1].get())), ABILITY_LEVELS.index(combat_ability.get()), ABILITY_LEVELS.index(defense.get()), talents, dual_wielding.get(), int(weapon_damage.get()[0]), weapon_traits, int(armour.get()), verbose=True)
+
+
 if __name__ == "__main__":
 
-  attribute = 3
-  attack_skill = [2, 1]
-  combat_ability = 3
+  attribute = 2
+  attack_skill = [2, 2]
+  combat_ability = 4
   defense = 3
   talents = []
-  # talents = ['Pierce Armour']
+  talents = ['Pierce Armour']
   # talents = ['Ambidextrous']
   # talents = ['Gunslinger']
   # talents = ['Ambidextrous', 'Pierce Armour']
@@ -238,12 +250,13 @@ if __name__ == "__main__":
   # talents = ['Ambidextrous', 'Gunslinger', 'Pierce Armour']
   # dual_wielding = True
   dual_wielding = False
-  weapon_damage = 1
+  weapon_damage = 2
   weapon_traits = []
   weapon_traits = ['Penetrating', 'Cleave']
+  weapon_traits = ['Cleave']
   # weapon_traits = ['Rend']
   # weapon_traits = ['Cleave', 'Ineffective', 'Penetrating', 'Rend', 'Spread']
-  armour = 1
+  armour = 2
 
 
   probabilities = attack(attribute, attack_skill, combat_ability, defense, talents, dual_wielding, weapon_damage, weapon_traits, armour)

@@ -3,9 +3,13 @@ from tkinter import font as tkfont
 from tkinter import ttk
 from PIL import Image, ImageTk
 
-ATTRIBUTE_RANGE = (1,2,3,4,5,6,7,8,9,10)
-SKILL_RANGE = (0,1,2,3)
-DN_RANGES = [(2,3,4,5,6), (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16)]
+from attacking_prob import attack_tkinter
+
+
+TRAITS_ALL = ['Cleave', 'Ineffective', 'Penetrating', 'Rend', 'Spread']
+TALENTS_ALL = ['Ambidextrous', 'Backstab', 'Barazakdum, the Doom-Oath', 'Battle Rage', 'Blood Frenzy', 'Bulwark', 'Crushing Blow', 'Gunslinger', 'Heavy Hitter', 'Immense Strikes', 'Immense Swing', 'Martial Memories', 'Mounted Combatant', 'Patient Strike', 'Pierce Armour', 'Relentless Assault', 'Rending Blow', 'Sever', 'Shield Mastery', 'Sigmar\'s Judgement', 'Star-Fated Arrow', 'The Bigger They Are', 'Underdog']
+ABILITY_LEVELS = ['Extraordinary', 'Superb', 'Great', 'Good', 'Average', 'Poor']
+
 
 
 class SampleApp(tk.Tk):
@@ -24,7 +28,7 @@ class SampleApp(tk.Tk):
     container.grid_columnconfigure(0, weight=1)
 
     self.frames = {}
-    for F in (StartPage, PageOne, PageTwo):
+    for F in (StartPage, PageOne, PageTwo, DamageCalculator):
       page_name = F.__name__
       frame = F(parent=container, controller=self)
       self.frames[page_name] = frame
@@ -59,7 +63,7 @@ class StartPage(tk.Frame):
 
     frm_atk = tk.Frame(self, borderwidth=5)
     btn_atk = tk.Button(master=frm_atk, text='Attack Probability Calculator', 
-                        command=lambda: controller.show_frame("PageOne"),
+                        command=lambda: controller.show_frame("DamageCalculator"),
                         font=self.title_font)
     # btn_atk.bind("<Button-1>", atk_prob_calc)
     btn_atk.pack(fill=tk.BOTH, expand=True)
@@ -103,16 +107,16 @@ class PageOne(tk.Frame):
                        command=lambda: controller.show_frame("StartPage"))
     button.pack()
 
-    # Combobox creation 
-    n = tk.StringVar() 
-    monthchoosen = ttk.Combobox(self, width = 27, textvariable = n) 
+    # # Combobox creation 
+    # n = tk.StringVar() 
+    # monthchoosen = ttk.Combobox(self, width = 27, textvariable = n) 
       
-    # Adding combobox drop down list 
-    monthchoosen['values'] = ATTRIBUTE_RANGE
+    # # Adding combobox drop down list 
+    # monthchoosen['values'] = ATTRIBUTE_RANGE
       
-    # monthchoosen.grid(column = 1, row = 5) 
-    monthchoosen.current() 
-    monthchoosen.pack()
+    # # monthchoosen.grid(column = 1, row = 5) 
+    # monthchoosen.current() 
+    # monthchoosen.pack()
 
     # frame.pack()
 
@@ -138,6 +142,148 @@ class PageTwo(tk.Frame):
     button.pack()
 
     # frame.pack()
+
+
+class DamageCalculator(tk.Frame):
+
+  def __init__(self, parent, controller):
+    tk.Frame.__init__(self, parent)
+    self.controller = controller
+
+    title = tk.Label(self, text="Damage Calculator", font=controller.title_font)
+    title.grid(row=0, columnspan=4)
+
+    combat_abilities = tk.Frame(self)
+
+    yca = tk.Label(combat_abilities, text='Your Combat\nAbility')
+    yca.grid(row=0, column=1)
+    td = tk.Label(combat_abilities, text='Target\nDefence')
+    td.grid(row=0, column=2)
+
+    self.combat = tk.StringVar()
+    self.defence = tk.StringVar()
+    for i, level in enumerate(ABILITY_LEVELS):
+      ca = tk.Label(combat_abilities, text=level)
+      ca.grid(row=i+1, column=0)
+      ca_1 = ttk.Radiobutton(combat_abilities, variable=self.combat, value=level)
+      ca_1.grid(row=i+1, column=1)
+      ca_2 = ttk.Radiobutton(combat_abilities, variable=self.defence, value=level)
+      ca_2.grid(row=i+1, column=2)
+    
+    combat_abilities.grid(row=2, column=0)
+
+
+    talents = tk.Frame(self)
+
+    t_title = tk.Label(talents, text='Combat Talents')
+    t_title.grid(row=0, columnspan=4)
+
+    self.talent_buttons = {}
+
+    for i, talent in enumerate(TALENTS_ALL):
+      row = int(i/4) + 1
+      col = int(i%4)
+      self.talent_buttons[talent] = tk.Button(talents, text=talent, command=lambda tal=talent: self.press_talent(tal))
+      self.talent_buttons[talent].grid(row=row, column=col, sticky='NSEW')
+
+    self.talents = []
+
+    talents.grid(row=1, column=0)
+
+    traits = tk.Frame(self)
+
+
+    t_title = tk.Label(traits, text='Weapon Traits')
+    t_title.grid(row=0, columnspan=1)
+
+    self.trait_buttons = {}
+
+    for i, trait in enumerate(TRAITS_ALL):
+      row = i+1
+      self.trait_buttons[trait] = tk.Button(traits, text=trait, command=lambda tra=trait: self.press_trait(tra))
+      self.trait_buttons[trait].grid(row=row, sticky='NSEW')
+
+    self.traits = []
+
+    traits.grid(row=1, column=1)
+
+    miscellaneous = tk.Frame(self)
+
+    self.attribute = tk.StringVar()
+    lbl = tk.Label(miscellaneous, text='Attack Attribute: ')
+    lbl.grid(row=0, column=0)
+    cbx = ttk.Combobox(miscellaneous, textvariable=self.attribute)
+    cbx['values'] = ('0','1','2','3','4','5','6','7','8')
+    cbx.current(0)
+    cbx.grid(row=0, column=1)
+
+    self.sk_train = tk.StringVar()
+    lbl = tk.Label(miscellaneous, text='Attack Skill Training: ')
+    lbl.grid(row=1, column=0)
+    cbx = ttk.Combobox(miscellaneous, textvariable=self.sk_train)
+    cbx['values'] = ('0','1','2','3')
+    cbx.current(0)
+    cbx.grid(row=1, column=1)
+
+    self.sk_focus = tk.StringVar()
+    lbl = tk.Label(miscellaneous, text='Attack Skill Focus: ')
+    lbl.grid(row=2, column=0)
+    cbx = ttk.Combobox(miscellaneous, textvariable=self.sk_focus)
+    cbx['values'] = ('0','1','2','3')
+    cbx.current(0)
+    cbx.grid(row=2, column=1)
+
+    self.wpn_damage = tk.StringVar()
+    lbl = tk.Label(miscellaneous, text='Weapon Damage: ')
+    lbl.grid(row=3, column=0)
+    cbx = ttk.Combobox(miscellaneous, textvariable=self.wpn_damage)
+    cbx['values'] = ('0+S','1+S','2+S','3+S','4+S')
+    cbx.current(0)
+    cbx.grid(row=3, column=1)
+
+    self.tgt_armour = tk.StringVar()
+    lbl = tk.Label(miscellaneous, text='Target Armour: ')
+    lbl.grid(row=3, column=0)
+    cbx = ttk.Combobox(miscellaneous, textvariable=self.tgt_armour)
+    cbx['values'] = ('0','1','2','3','4','5')
+    cbx.current(0)
+    cbx.grid(row=3, column=1)
+
+    self.dual_wield = tk.BooleanVar()
+    lbl = tk.Label(miscellaneous, text='Dual Wielding: ')
+    lbl.grid(row=4, column=0)
+    cbn = ttk.Checkbutton(miscellaneous, variable=self.dual_wield, onvalue=True, offvalue=False)
+    cbn.grid(row=4, column=1)
+
+    miscellaneous.grid(row=2, column=1)
+
+
+    button = tk.Button(self, text="Go to the start page",
+                       command=lambda: controller.show_frame("StartPage"))
+    button.grid(row=3, column=0)
+
+    button = tk.Button(self, text="Calculate!",
+                       command=lambda attribute=self.attribute, attack_skill=(self.sk_train, self.sk_focus), combat_ability=self.combat, defense=self.defence, talents=self.talents, dual_wielding=self.dual_wield, weapon_damage=self.wpn_damage, weapon_traits=self.traits, armour=self.tgt_armour: attack_tkinter(attribute, attack_skill, combat_ability, defense, talents, dual_wielding, weapon_damage, weapon_traits, armour))
+    button.grid(row=3, column=1)
+
+
+
+  def press_talent(self, talent):
+    if self.talent_buttons[talent].cget('bg') == 'SystemButtonFace':
+      self.talent_buttons[talent].configure(background='LightBlue2')
+      self.talents.append(talent)
+    else:
+      self.talent_buttons[talent].configure(background='SystemButtonFace')
+      self.talents.remove(talent)
+
+
+  def press_trait(self, trait):
+    if self.trait_buttons[trait].cget('bg') == 'SystemButtonFace':
+      self.trait_buttons[trait].configure(background='LightBlue2')
+      self.traits.append(trait)
+    else:
+      self.trait_buttons[trait].configure(background='SystemButtonFace')
+      self.traits.remove(trait)
 
 
 # def atk_prob_calc():
