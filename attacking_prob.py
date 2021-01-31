@@ -102,7 +102,60 @@ def six_prob_calculation(succ_prob, dn, damage_range):
 
 def attack(attribute, attack_skill, combat_ability, defense, talents, dual_wielding, weapon_damage, weapon_traits, armour, verbose=True):
 
-  print(weapon_traits)
+  # full gunslinger implementation
+  if 'Gunslinger' in talents:
+    # combat ability starts at 0 (Poor)
+    combat_ability = min(combat_ability+1, 5)
+
+  # full heavy hitter implementation
+  if 'Heavy Hitter' in talents:
+    if 'Ineffective' in weapon_traits:
+      weapon_traits.remove('Ineffective')
+    weapon_damage = 1
+
+  # full immense strikes implementation
+  if 'Immense Strikes' in talents:
+    weapon_damage += 1
+
+  # full immense swing implementation
+  if 'Immense Swing' in talents:
+    if 'Cleave' not in weapon_traits:
+      weapon_traits.append('Cleave')
+
+  # full immense swing implementation
+  if 'Martial Memories' in talents:
+    # combat ability starts at 0 (Poor)
+    combat_ability = min(combat_ability+1, 5)
+
+  # full immense swing implementation
+  if 'Mounted Combatant' in talents:
+    # combat ability starts at 0 (Poor)
+    combat_ability = min(combat_ability+1, 5)
+
+  # full immense swing implementation
+  if 'Patient Strike' in talents:
+    # combat ability starts at 0 (Poor)
+    combat_ability = min(combat_ability+1, 5)
+
+  # full immense swing implementation
+  if 'Relentless Assault' in talents:
+    # combat ability starts at 0 (Poor)
+    combat_ability = min(combat_ability+1, 5)
+
+  # full immense swing implementation
+  if 'Sigmar\'s Judgement' in talents:
+    # combat ability starts at 0 (Poor)
+    combat_ability = min(combat_ability+1, 5)
+
+  # full immense swing implementation
+  if 'The Bigger They Are' in talents:
+    # combat ability starts at 0 (Poor)
+    combat_ability = min(combat_ability+1, 5)
+
+  # full immense swing implementation
+  if 'Underdog' in talents:
+    # combat ability starts at 0 (Poor)
+    combat_ability = min(combat_ability+1, 5)
 
   # calculate the base dice pool size
   dice_pool_base = attribute + attack_skill[0]
@@ -117,10 +170,6 @@ def attack(attribute, attack_skill, combat_ability, defense, talents, dual_wield
   # modify weapon damage for dual wielding
   if dual_wielding:
     weapon_damage = weapon_damage * 2
-
-  # add gunslinger bonus
-  if 'Gunslinger' in talents:
-    combat_ability += 1
 
   # add ambidextrous bonus
   if 'Ambidextrous' in talents:
@@ -172,11 +221,19 @@ def attack(attribute, attack_skill, combat_ability, defense, talents, dual_wield
   # create damage array
   damage = np.array(range(damage_range+1)) + np.array([0] + [weapon_damage]*(damage_range))
 
-  # compute damage applied 
-  if dual_wielding:
-    damage_suffered = np.maximum(damage-(armour*2), np.zeros(damage_range+1))
-  else:
-    damage_suffered = np.maximum(damage-armour, np.zeros(damage_range+1))
+  # full barazakdum, the doom-oath implementation
+  if 'Barazakdum, the Doom-Oath' in talents:
+    damage = damage * 2
+
+  if 'Backstab' in talents:
+    damage = damage * 2
+
+  # compute damage applied
+  if 'Backstab' not in talents: 
+    if dual_wielding:
+      damage_suffered = np.maximum(damage-(armour*2), np.zeros(damage_range+1))
+    else:
+      damage_suffered = np.maximum(damage-armour, np.zeros(damage_range+1))
 
   if attack_skill[1] > 0:
     # truncate probabilities and damage suffered to possible ranges
@@ -185,7 +242,7 @@ def attack(attribute, attack_skill, combat_ability, defense, talents, dual_wield
 
   # combine indices that deal zero damage
   probabilities = np.array([np.sum(probabilities[np.where(damage_suffered == 0)]), *probabilities[np.where(damage_suffered > 0)]])
-  damage_suffered = np.array(range(probabilities.size))
+  damage_suffered = np.array([0, *damage_suffered[np.where(damage_suffered > 0)]])
 
   if verbose:
     print('Success likelihood: {:2.2%}'.format(np.sum(probabilities[np.where(damage_suffered > 0)])))
@@ -221,17 +278,10 @@ def attack(attribute, attack_skill, combat_ability, defense, talents, dual_wield
       plt.ylabel('Likelihood')
       plt.show()
 
-    # if 'Crushing Blow' in talents:
+
+  return probs
 
 
-  return probabilities
-
-
-
-def attack_tkinter(attribute, attack_skill, combat_ability, defense, talents, dual_wielding, weapon_damage, weapon_traits, armour, verbose=True):
-
-
-  attack(int(attribute.get()), (int(attack_skill[0].get()), int(attack_skill[1].get())), ABILITY_LEVELS.index(combat_ability.get()), ABILITY_LEVELS.index(defense.get()), talents, dual_wielding.get(), int(weapon_damage.get()[0]), weapon_traits, int(armour.get()), verbose=True)
 
 
 if __name__ == "__main__":
