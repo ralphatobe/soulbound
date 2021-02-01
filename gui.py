@@ -12,7 +12,7 @@ from utils import test, extended_test
 
 TRAITS_ALL = ['Cleave', 'Ineffective', 'Penetrating', 'Rend', 'Spread']
 TALENTS_ALL = ['Ambidextrous', 'Backstab', 'Barazakdum, the Doom-Oath', 'Battle Rage', 'Blood Frenzy', 'Crushing Blow', 'Gunslinger', 'Heavy Hitter', 'Immense Strikes', 'Immense Swing', 'Martial Memories', 'Mounted Combatant', 'Patient Strike', 'Pierce Armour', 'Relentless Assault', 'Rending Blow', 'Sever', 'Sigmar\'s Judgement', 'Star-Fated Arrow', 'The Bigger They Are', 'Underdog']
-ABILITY_LEVELS = ['Extraordinary', 'Superb', 'Great', 'Good', 'Average', 'Poor']
+ABILITY_LEVELS = ['Poor', 'Average', 'Good', 'Great', 'Superb', 'Extraordinary']
 
 
 
@@ -582,11 +582,11 @@ class DamageCalculator(tk.Frame):
     self.defence = tk.StringVar()
     for i, level in enumerate(ABILITY_LEVELS):
       ca = tk.Label(combat_abilities, text=level)
-      ca.grid(row=i+1, column=0)
+      ca.grid(row=6-i, column=0)
       ca_1 = ttk.Radiobutton(combat_abilities, variable=self.combat, value=level)
-      ca_1.grid(row=i+1, column=1)
+      ca_1.grid(row=6-i, column=1)
       ca_2 = ttk.Radiobutton(combat_abilities, variable=self.defence, value=level)
-      ca_2.grid(row=i+1, column=2)
+      ca_2.grid(row=6-i, column=2)
     
     combat_abilities.grid(row=2, column=0)
 
