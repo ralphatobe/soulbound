@@ -10,8 +10,8 @@ from attacking_prob import attack
 from utils import test, extended_test
 
 
-TRAITS_ALL = ['Cleave', 'Ineffective', 'Penetrating', 'Rend', 'Spread']
-TALENTS_ALL = ['Ambidextrous', 'Backstab', 'Barazakdum, the Doom-Oath', 'Battle Rage', 'Blood Frenzy', 'Crushing Blow', 'Gunslinger', 'Heavy Hitter', 'Immense Strikes', 'Immense Swing', 'Martial Memories', 'Mounted Combatant', 'Patient Strike', 'Pierce Armour', 'Relentless Assault', 'Rending Blow', 'Sever', 'Sigmar\'s Judgement', 'Star-Fated Arrow', 'The Bigger They Are', 'Underdog']
+TRAITS_ALL = ['Cleave', 'Ineffective', 'Penetrating', 'Rend']
+TALENTS_ALL = ['Ambidextrous', 'Backstab', 'Barazakdum, the Doom-Oath', 'Battle Rage', 'Blood Frenzy', 'Crushing Blow', 'Gunslinger', 'Heavy Hitter', 'Immense Strikes', 'Immense Swing', 'Martial Memories', 'Mounted Combatant', 'Patient Strike', 'Pierce Armour', 'Relentless Assault', 'Sever', 'Sigmar\'s Judgement', 'Star-Fated Arrow', 'The Bigger They Are', 'Underdog']
 ABILITY_LEVELS = ['Poor', 'Average', 'Good', 'Great', 'Superb', 'Extraordinary']
 
 
@@ -22,6 +22,8 @@ class SampleApp(tk.Tk):
     tk.Tk.__init__(self, *args, **kwargs)
 
     self.title_font = tkfont.Font(family='Helvetica', size=18, weight="bold", slant="italic")
+
+    self.winfo_toplevel().title("Soulbound Calculator")
 
     # the container is where we'll stack a bunch of frames
     # on top of each other, then the one we want visible
@@ -749,15 +751,18 @@ class DamageCalculator(tk.Frame):
 
   def calculate(self, attribute, attack_skill, combat_ability, defense, talents, dual_wielding, weapon_damage, weapon_traits, armour, verbose=True):
 
-    probabilities = attack(attribute.get(), (attack_skill[0].get(), attack_skill[1].get()), ABILITY_LEVELS.index(combat_ability.get()), ABILITY_LEVELS.index(defense.get()), talents, dual_wielding.get(), int(weapon_damage.get()[0]), weapon_traits, armour.get(), verbose=False)
+    probabilities, damage = attack(attribute.get(), (attack_skill[0].get(), attack_skill[1].get()), ABILITY_LEVELS.index(combat_ability.get()), ABILITY_LEVELS.index(defense.get()), talents, dual_wielding.get(), int(weapon_damage.get()[0]), weapon_traits, armour.get(), verbose=False)
+
+    print(damage)
+    print(probabilities)
 
     plot = self.fig.add_subplot(111, xlabel='Number of Successes', ylabel='Likelihood')
-    plot.bar(range(probabilities.shape[0]), np.sum(probabilities, axis=-1))
+    plot.bar(damage, probabilities)
     self.canvas.draw()
     plot.clear()
 
-    self.succ_lik.set('{:2.2%}'.format(np.sum(probabilities[1:,:])))
-    self.succ_exp.set('{:2.3}'.format(np.matmul(range(probabilities.shape[0]), np.sum(probabilities, axis=-1))))
+    self.succ_lik.set('{:2.2%}'.format(np.sum(probabilities[1:])))
+    self.succ_exp.set('{:2.3}'.format(np.matmul(damage, probabilities)))
 
 
 

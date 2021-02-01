@@ -122,50 +122,58 @@ def attack(attribute, attack_skill, combat_ability, defense, talents, dual_wield
     if 'Cleave' not in weapon_traits:
       weapon_traits.append('Cleave')
 
-  # full immense swing implementation
+  # full martial memories implementation
   if 'Martial Memories' in talents:
     # combat ability starts at 0 (Poor)
     combat_ability = min(combat_ability+1, 5)
 
-  # full immense swing implementation
+  # full mounted combatant implementation
   if 'Mounted Combatant' in talents:
     # combat ability starts at 0 (Poor)
     combat_ability = min(combat_ability+1, 5)
 
-  # full immense swing implementation
+  # full patient strike implementation
   if 'Patient Strike' in talents:
     # combat ability starts at 0 (Poor)
     combat_ability = min(combat_ability+1, 5)
 
-  # full immense swing implementation
+  # full relentless assault implementation
   if 'Relentless Assault' in talents:
     # combat ability starts at 0 (Poor)
     combat_ability = min(combat_ability+1, 5)
 
-  # full immense swing implementation
+  # full sigmar's judgement implementation
   if 'Sigmar\'s Judgement' in talents:
     # combat ability starts at 0 (Poor)
     combat_ability = min(combat_ability+1, 5)
 
-  # full immense swing implementation
+  # full star-fated arrow implementation
+  if 'Star-Fated Arrow' in talents:
+    armour = 0
+
+  # full the bigger they are implementation
   if 'The Bigger They Are' in talents:
     # combat ability starts at 0 (Poor)
     combat_ability = min(combat_ability+1, 5)
 
-  # full immense swing implementation
+  # full underdog implementation
   if 'Underdog' in talents:
     # combat ability starts at 0 (Poor)
     combat_ability = min(combat_ability+1, 5)
+
+  # full ineffective implementation
+  if 'Ineffective' in weapon_traits:
+    armour = armour * 2
+
+  # full penetrating implementation
+  if 'Penetrating' in weapon_traits:
+    armour = max(0, armour-1)
 
   # calculate the base dice pool size
   dice_pool_base = attribute + attack_skill[0]
   
   # calculate the base damage range
   damage_range = dice_pool_base + attack_skill[1]
-
-  # account for weapon penetration
-  if 'Penetrating' in weapon_traits:
-    armour = max(0, armour-1)
 
   # modify weapon damage for dual wielding
   if dual_wielding:
@@ -221,6 +229,8 @@ def attack(attribute, attack_skill, combat_ability, defense, talents, dual_wield
   # create damage array
   damage = np.array(range(damage_range+1)) + np.array([0] + [weapon_damage]*(damage_range))
 
+  print(damage)
+
   # full barazakdum, the doom-oath implementation
   if 'Barazakdum, the Doom-Oath' in talents:
     damage = damage * 2
@@ -228,12 +238,16 @@ def attack(attribute, attack_skill, combat_ability, defense, talents, dual_wield
   if 'Backstab' in talents:
     damage = damage * 2
 
+  print(damage)
+
   # compute damage applied
   if 'Backstab' not in talents: 
     if dual_wielding:
       damage_suffered = np.maximum(damage-(armour*2), np.zeros(damage_range+1))
     else:
       damage_suffered = np.maximum(damage-armour, np.zeros(damage_range+1))
+  else:
+    damage_suffered = damage
 
   if attack_skill[1] > 0:
     # truncate probabilities and damage suffered to possible ranges
@@ -266,6 +280,13 @@ def attack(attribute, attack_skill, combat_ability, defense, talents, dual_wield
       plt.ylabel('Likelihood')
       plt.show()
 
+    if 'Crushing Blow' in weapon_traits:
+      print('Crushing Blow likelihood: {:2.2%}'.format(np.sum(probs[:,1:])))
+
+      plt.bar(['Failure', 'Success'], [np.sum(probs[:,0]), np.sum(probs[:,1:])])
+      plt.title('Crushing Blow Distribution')
+      plt.ylabel('Likelihood')
+      plt.show()
 
     if 'Rend' in weapon_traits:
       print('Rend likelihood: {:2.2%}'.format(np.sum(probs[:,1:])))
@@ -278,8 +299,16 @@ def attack(attribute, attack_skill, combat_ability, defense, talents, dual_wield
       plt.ylabel('Likelihood')
       plt.show()
 
+    if 'Sever' in weapon_traits:
+      print('Sever likelihood: {:2.2%}'.format(np.sum(probs[:,1:])))
 
-  return probs
+      plt.bar(['Failure', 'Success'], [np.sum(probs[:,0]), np.sum(probs[:,1:])])
+      plt.title('Sever Distribution')
+      plt.ylabel('Likelihood')
+      plt.show()
+
+
+  return probabilities, damage_suffered
 
 
 

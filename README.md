@@ -22,14 +22,6 @@ I generally implement features as they become useful to me, so these additional 
   * Combat-focused Talents:
     * Battle Rage (this one will have to be a tuple dictating how you change combat abilities)
     * Blood Frenzy (this involves consecutive attacks, and will likely take a bit of work)
-    * Crushing Blow (this can use Amour Piercing code)
-    * Rending Blow
-    * Sever
-    * Star-Fated Arrow
-  * Weapon traits:
-    * Ineffective
-    * Penetrating
-    * Spread (this will be difficult, as it incorporates other creatures making a Body (Reflexes) Test)
   * Errata
     * Pierce Armour may be able to pierce the doubled armour from dual wielding. I'll have to discuss with my DM to get a ruling.
 
@@ -45,6 +37,7 @@ Expansions that have been implemented. If a function is more complicated than yo
     * Ambidextrous: Added to attacking_prob. I remain convinced that this interpretation of Ambidextrous is wrong, but it's how we use it with my party. We roll 1d6 and add that many d6's to the dice pool. Additionally, Ambidextrous can be active while the attacker is 'not dual wielding' and targeting a single opponent, meaning the attacker's weapon damage is not doubled, and neither is the opponent's armour.
     * Backstab: Added to attacking_prob.
     * Barazakdum, the Doom-Oath: Added to attacking_prob.
+    * Crushing Blow: Added to attacking_prob.
     * Gunslinger: Added to attacking_prob.
     * Heavy Hitter: Added to attacking_prob.
     * Immense Strikes: Added to attacking_prob.
@@ -53,10 +46,14 @@ Expansions that have been implemented. If a function is more complicated than yo
     * Mounted Combatant: Added to attacking_prob.
     * Patient Strike: Added to attacking_prob.
     * Relentless Assault: Added to attacking_prob.
+    * Sever: Added to attacking_prob.
     * Sigmar's Judgement: Added to attacking_prob.
+    * Star-Fated Arrow: Added to attacking_prob.
     * The Bigger They Are: Added to attacking_prob.
     * Underdog: Added to attacking_prob.
   * Weapon Traits:
     * Cleave: Added to attacking_prob.
+    * Ineffective: Added to attacking_prob.
+    * Penetrating: Added to attacking_prob.
     * Rend: Added to attacking_prob.
   * Added dual wielding to attacking_prob.

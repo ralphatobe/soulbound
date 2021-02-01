@@ -101,7 +101,7 @@ def test_full(dice_pool, skill, dn, verbose=True):
   if skill[1] > 0:
     return probabilities[:-skill[1],:,:]
   else:
-    return probabilities[:,:,:]
+    return probabilities
 
 
 def test(dice_pool, skill, dn, verbose=True):
