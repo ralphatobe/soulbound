@@ -207,6 +207,7 @@ class TestRegular(tk.Frame):
     # fig.add_subplot(111).plot(t, 2 * np.sin(2 * np.pi * t))
 
     self.canvas = FigureCanvasTkAgg(self.fig, master=frm_fig)
+    self.plot = self.fig.add_subplot(111)
     self.canvas.draw()
     self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
@@ -226,13 +227,13 @@ class TestRegular(tk.Frame):
 
     probabilities = test(attribute.get()+training.get(), [training.get(), focus.get()], [dn_0.get(), dn_1.get()], verbose=False)
 
-    plot = self.fig.add_subplot(111, xlabel='Number of Successes', ylabel='Likelihood')
-    plot.bar(range(probabilities.shape[0]), probabilities)
+    self.plot.set_title('Success Distribution')
+    self.plot.set_xlabel('Number of Successes')
+    self.plot.set_ylabel('Likelihood')
+    self.plot.bar(range(probabilities.shape[0]), probabilities)
     self.canvas.draw()
-    plot.clear()
-
-    print('{:2.2%}'.format(np.sum(probabilities[dn_1.get():])))
-    print('{:2.3}'.format(np.matmul(range(probabilities.shape[0]), probabilities)))
+    self.plot.clear()
+    self.plot.cla()
 
     self.succ_lik.set('{:2.2%}'.format(np.sum(probabilities[dn_1.get():])))
     self.succ_exp.set('{:2.3}'.format(np.matmul(range(probabilities.shape[0]), probabilities)))
@@ -343,6 +344,7 @@ class TestExtended(tk.Frame):
     self.fig = Figure(figsize=(5, 4), dpi=100)
 
     self.canvas = FigureCanvasTkAgg(self.fig, master=frm_fig)
+    self.plot = self.fig.add_subplot(111)
     self.canvas.draw()
     self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
@@ -363,13 +365,13 @@ class TestExtended(tk.Frame):
 
     probabilities = extended_test(attribute.get()+training.get(), [training.get(), focus.get()], [dn_0.get(), dn_1.get()], verbose=False)
 
-    plot = self.fig.add_subplot(111, xlabel='Number of Successes', ylabel='Likelihood')
-    plot.bar(range(probabilities.shape[0]), probabilities)
+    self.plot.set_title('Success Distribution')
+    self.plot.set_xlabel('Number of Successes')
+    self.plot.set_ylabel('Likelihood')
+    self.plot.bar(range(probabilities.shape[0]), probabilities)
     self.canvas.draw()
-    plot.clear()
-
-    print('{:2.2%}'.format(np.sum(probabilities[dn_1.get():])))
-    print('{:2.3}'.format(np.matmul(range(probabilities.shape[0]), probabilities)))
+    self.plot.clear()
+    self.plot.cla()
 
     self.succ_lik.set('{:2.2%}'.format(np.sum(probabilities[dn_1.get():])))
     self.succ_exp.set('{:2.3}'.format(np.matmul(range(probabilities.shape[0]), probabilities)))
@@ -527,8 +529,10 @@ class TestExtendedCustom(tk.Frame):
     self.fig = Figure(figsize=(5, 4), dpi=100)
 
     self.canvas = FigureCanvasTkAgg(self.fig, master=frm_fig)
+    self.plot = self.fig.add_subplot(111)
     self.canvas.draw()
     self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+
 
     frm_fig.grid(row=1, rowspan=4, column=1, padx=3, pady=3)
 
@@ -550,13 +554,13 @@ class TestExtendedCustom(tk.Frame):
 
     probabilities = extended_test(dice_pool, skill, [dn_0.get(), dn_1.get()], verbose=False)
 
-    plot = self.fig.add_subplot(111, xlabel='Number of Successes', ylabel='Likelihood')
-    plot.bar(range(probabilities.shape[0]), probabilities)
+    self.plot.set_title('Success Distribution')
+    self.plot.set_xlabel('Number of Successes')
+    self.plot.set_ylabel('Likelihood')
+    self.plot.bar(range(probabilities.shape[0]), probabilities)
     self.canvas.draw()
-    plot.clear()
-
-    print('{:2.2%}'.format(np.sum(probabilities[dn_1.get():])))
-    print('{:2.3}'.format(np.matmul(range(probabilities.shape[0]), probabilities)))
+    self.plot.clear()
+    self.plot.cla()
 
     self.succ_lik.set('{:2.2%}'.format(np.sum(probabilities[dn_1.get():])))
     self.succ_exp.set('{:2.3}'.format(np.matmul(range(probabilities.shape[0]), probabilities)))
