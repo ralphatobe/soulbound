@@ -169,7 +169,7 @@ class TestRegular(tk.Frame):
 
     self.dn_1 = tk.IntVar()
     cbx_dn_1 = ttk.Combobox(frm_dn, textvariable=self.dn_1, width=3)
-    cbx_dn_1['values'] = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14)
+    cbx_dn_1['values'] = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14)
     cbx_dn_1.grid(row=0, column=3)
 
     frm_dn.grid(row=3, column=0)
@@ -308,7 +308,7 @@ class TestExtended(tk.Frame):
 
     self.dn_1 = tk.IntVar()
     cbx_dn_1 = ttk.Combobox(frm_dn, textvariable=self.dn_1, width=3)
-    cbx_dn_1['values'] = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14)
+    cbx_dn_1['values'] = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14)
     cbx_dn_1.grid(row=0, column=3)
 
     frm_dn.grid(row=3, column=0)
@@ -492,7 +492,7 @@ class TestExtendedCustom(tk.Frame):
 
     self.dn_1 = tk.IntVar()
     cbx_dn_1 = ttk.Combobox(frm_dn, textvariable=self.dn_1, width=3)
-    cbx_dn_1['values'] = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14)
+    cbx_dn_1['values'] = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14)
     cbx_dn_1.grid(row=0, column=3)
 
     frm_dn.grid(row=3, column=0)
