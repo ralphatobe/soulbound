@@ -22,8 +22,9 @@ I generally implement features as they become useful to me, so these additional 
   * Combat-focused Talents:
     * Battle Rage (this one will have to be a tuple dictating how you change combat abilities)
     * Blood Frenzy (this involves consecutive attacks, and will likely take a bit of work)
-  * Errata
+  * Errata:
     * Pierce Armour may be able to pierce the doubled armour from dual wielding. I'll have to discuss with my DM to get a ruling.
+
 
 ## Too Done
 
@@ -57,3 +58,5 @@ Expansions that have been implemented. If a function is more complicated than yo
     * Penetrating: Added to attacking_prob.
     * Rend: Added to attacking_prob.
   * Added dual wielding to attacking_prob.
+  * GUI:
+    * Create a mechanism to cycle through graphs (for Cleave, Sever, etc.)

@@ -678,44 +678,63 @@ class DamageCalculator(tk.Frame):
     miscellaneous.grid(row=2, column=1)
 
 
-
-
-    # skill values
-    frm_results = tk.Frame(self)
-
-    lbl_results = tk.Label(frm_results, text='Success Likelihood:')
-    lbl_results.grid(row=0, column=0)
-
-    self.succ_lik = tk.StringVar()
-    self.succ_lik.set('')
-    lbl_results = tk.Label(frm_results, textvariable=self.succ_lik)
-    lbl_results.grid(row=0, column=1)
-
-    lbl_results = tk.Label(frm_results, text='Expected Successes:')
-    lbl_results.grid(row=1, column=0)
-
-    self.succ_exp = tk.StringVar()
-    self.succ_exp.set('')
-    lbl_results = tk.Label(frm_results, textvariable=self.succ_exp)
-    lbl_results.grid(row=1, column=1)
-    
-    frm_results.grid(row=3, column=2)
-
-
     frm_fig = tk.Frame(self)
 
     self.fig = Figure(figsize=(5, 4), dpi=100)
 
     self.canvas = FigureCanvasTkAgg(self.fig, master=frm_fig)
+    self.plot = self.fig.add_subplot(111)
     self.canvas.draw()
     self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
     frm_fig.grid(row=1, rowspan=2, column=2, padx=3, pady=3)
 
 
+
+
+    # skill values
+    frm_results = tk.Frame(self)
+
+    frm_res_txt = tk.Frame(frm_results)
+
+    self.succ_lik = tk.StringVar()
+    self.succ_lik.set('')
+    lbl_results = tk.Label(frm_res_txt, textvariable=self.succ_lik)
+    lbl_results.grid(row=0, column=0)
+
+    self.succ_exp = tk.StringVar()
+    self.succ_exp.set('')
+    lbl_results = tk.Label(frm_res_txt, textvariable=self.succ_exp)
+    lbl_results.grid(row=1, column=0)
+
+    frm_res_txt.grid(row=0, column=0, sticky='W')
+
+    frm_change = tk.Frame(frm_results)
+
+    btn = tk.Button(frm_change, text='<',
+                       command=lambda: self.press_left())
+    btn.grid(row=0, column=0, padx=3)
+
+    self.results = []
+    fnt = tkfont.Font(family='Helvetica', size=8, slant="italic")
+    self.results_desc = tk.StringVar()
+    self.results_desc.set('0 of 0')
+    lbl = tk.Label(frm_change, textvariable=self.results_desc)
+    lbl.grid(row=0, column=1, padx=3)
+
+    btn = tk.Button(frm_change, text='>',
+                       command=lambda: self.press_right())
+    btn.grid(row=0, column=2, padx=3)
+
+    frm_change.grid(row=0, column=1, sticky='E')
+    
+    frm_results.grid(row=3, column=2)
+
+
+
     button = tk.Button(self, text="Go to the start page",
                        command=lambda: controller.show_frame("StartPage"))
-    button.grid(row=4, column=0)
+    button.grid(row=5, column=0)
 
     button = tk.Button(self, text="Calculate!",
                        command=lambda attribute=self.attri, 
@@ -727,7 +746,7 @@ class DamageCalculator(tk.Frame):
                                       weapon_damage=self.wpn_damage, 
                                       weapon_traits=self.traits, 
                                       armour=self.tgt_armour: self.calculate(attribute, attack_skill, combat_ability, defense, talents, dual_wielding, weapon_damage, weapon_traits, armour))
-    button.grid(row=4, column=1)
+    button.grid(row=5, column=1)
 
 
 
@@ -748,21 +767,61 @@ class DamageCalculator(tk.Frame):
       self.trait_buttons[trait].configure(background='SystemButtonFace')
       self.traits.remove(trait)
 
+  def press_left(self):
+    if len(self.results) > 1:
+      num_res = len(self.results)
+      self.idx = (self.idx-1) % num_res
+      self.results_desc.set(str(self.idx+1) + ' of ' + str(num_res))
+
+      self.plot.set_title(self.results[self.idx][4])
+      self.plot.set_xlabel(self.results[self.idx][5])
+      self.plot.set_ylabel(self.results[self.idx][6])
+      self.plot.bar(self.results[self.idx][2], self.results[self.idx][3])
+      self.canvas.draw()
+      self.plot.clear()
+      self.plot.cla()
+
+      self.succ_lik.set(self.results[self.idx][0])
+      self.succ_exp.set(self.results[self.idx][1])
+
+  def press_right(self):
+    if len(self.results) > 1:
+      num_res = len(self.results)
+      self.idx = (self.idx+1) % num_res
+      self.results_desc.set(str(self.idx+1) + ' of ' + str(num_res))
+
+      self.plot.set_title(self.results[self.idx][4])
+      self.plot.set_xlabel(self.results[self.idx][5])
+      self.plot.set_ylabel(self.results[self.idx][6])
+      self.plot.bar(self.results[self.idx][2], self.results[self.idx][3])
+      self.canvas.draw()
+      self.plot.clear()
+      self.plot.cla()
+
+      self.succ_lik.set(self.results[self.idx][0])
+      self.succ_exp.set(self.results[self.idx][1])
+
+
 
   def calculate(self, attribute, attack_skill, combat_ability, defense, talents, dual_wielding, weapon_damage, weapon_traits, armour, verbose=True):
 
-    probabilities, damage = attack(attribute.get(), (attack_skill[0].get(), attack_skill[1].get()), ABILITY_LEVELS.index(combat_ability.get()), ABILITY_LEVELS.index(defense.get()), talents, dual_wielding.get(), int(weapon_damage.get()[0]), weapon_traits, armour.get(), verbose=False)
+    self.results = attack(attribute.get(), (attack_skill[0].get(), attack_skill[1].get()), ABILITY_LEVELS.index(combat_ability.get()), ABILITY_LEVELS.index(defense.get()), talents, dual_wielding.get(), int(weapon_damage.get()[0]), weapon_traits, armour.get(), verbose=False)
 
-    print(damage)
-    print(probabilities)
+    if len(self.results) > 0:
+      self.idx = 0
+      num_res = len(self.results)
+      self.results_desc.set('1 of ' + str(num_res))
 
-    plot = self.fig.add_subplot(111, xlabel='Number of Successes', ylabel='Likelihood')
-    plot.bar(damage, probabilities)
-    self.canvas.draw()
-    plot.clear()
+      self.plot.set_title(self.results[0][4])
+      self.plot.set_xlabel(self.results[0][5])
+      self.plot.set_ylabel(self.results[0][6])
+      self.plot.bar(self.results[0][2], self.results[0][3])
+      self.canvas.draw()
+      self.plot.clear()
+      self.plot.cla()
 
-    self.succ_lik.set('{:2.2%}'.format(np.sum(probabilities[1:])))
-    self.succ_exp.set('{:2.3}'.format(np.matmul(damage, probabilities)))
+      self.succ_lik.set(self.results[0][0])
+      self.succ_exp.set(self.results[0][1])
 
 
 

@@ -102,6 +102,10 @@ def six_prob_calculation(succ_prob, dn, damage_range):
 
 def attack(attribute, attack_skill, combat_ability, defense, talents, dual_wielding, weapon_damage, weapon_traits, armour, verbose=True):
 
+  # partial backstab implementation
+  if 'Backstab' in talents:
+    armour = 0
+
   # full gunslinger implementation
   if 'Gunslinger' in talents:
     # combat ability starts at 0 (Poor)
@@ -229,25 +233,19 @@ def attack(attribute, attack_skill, combat_ability, defense, talents, dual_wield
   # create damage array
   damage = np.array(range(damage_range+1)) + np.array([0] + [weapon_damage]*(damage_range))
 
-  print(damage)
-
   # full barazakdum, the doom-oath implementation
   if 'Barazakdum, the Doom-Oath' in talents:
     damage = damage * 2
 
+  # partial backstab implementation
   if 'Backstab' in talents:
     damage = damage * 2
 
-  print(damage)
-
   # compute damage applied
-  if 'Backstab' not in talents: 
-    if dual_wielding:
-      damage_suffered = np.maximum(damage-(armour*2), np.zeros(damage_range+1))
-    else:
-      damage_suffered = np.maximum(damage-armour, np.zeros(damage_range+1))
+  if dual_wielding:
+    damage_suffered = np.maximum(damage-(armour*2), np.zeros(damage_range+1))
   else:
-    damage_suffered = damage
+    damage_suffered = np.maximum(damage-armour, np.zeros(damage_range+1))
 
   if attack_skill[1] > 0:
     # truncate probabilities and damage suffered to possible ranges
@@ -257,6 +255,52 @@ def attack(attribute, attack_skill, combat_ability, defense, talents, dual_wield
   # combine indices that deal zero damage
   probabilities = np.array([np.sum(probabilities[np.where(damage_suffered == 0)]), *probabilities[np.where(damage_suffered > 0)]])
   damage_suffered = np.array([0, *damage_suffered[np.where(damage_suffered > 0)]])
+
+  results = []
+
+  results.append(['Success Likelihood: {:2.2%}'.format(np.sum(probabilities[np.where(damage_suffered > 0)])),
+                  'Expected Damage: {:2.3}'.format(np.matmul(probabilities, damage_suffered)),
+                  damage_suffered,
+                  probabilities,
+                  'Damage Distribution',
+                  'Damage',
+                  'Likelihood'])
+
+  if 'Cleave' in weapon_traits:
+    results.append(['Cleave Likelihood: {:2.2%}'.format(np.sum(probs[:,1:])),
+                    'Expected Cleave Damage: {:2.3}'.format(np.matmul(np.sum(probs,axis=0), range(probs.shape[-1]))),
+                    range(probs.shape[-1]),
+                    np.sum(probs,axis=0),
+                    'Cleave Distribution',
+                    'Cleave Damage',
+                    'Likelihood'])
+
+  if 'Crushing Blow' in weapon_traits:
+    results.append(['Crushing Blow Likelihood: {:2.2%}'.format(np.sum(probs[:,1:])),
+                    '',
+                    ['Failure', 'Success'],
+                    [np.sum(probs[:,0]), np.sum(probs[:,1:])],
+                    'Crushing Blow Distribution',
+                    '',
+                    'Likelihood'])
+
+  if 'Rend' in weapon_traits:
+    results.append(['Rend Likelihood: {:2.2%}'.format(np.sum(probs[:,1:])),
+                    'Expected Armour Damage: {:2.3}'.format(np.matmul(np.sum(probs,axis=0), range(probs.shape[-1]))),
+                    range(probs.shape[-1]),
+                    np.sum(probs,axis=0),
+                    'Rend Distribution',
+                    'Armour Rended',
+                    'Likelihood'])
+
+  if 'Sever' in weapon_traits:
+    results.append(['Sever Likelihood: {:2.2%}'.format(np.sum(probs[:,1:])),
+                    '',
+                    ['Failure', 'Success'],
+                    [np.sum(probs[:,0]), np.sum(probs[:,1:])],
+                    'Sever Distribution',
+                    '',
+                    'Likelihood'])
 
   if verbose:
     print('Success likelihood: {:2.2%}'.format(np.sum(probabilities[np.where(damage_suffered > 0)])))
@@ -308,7 +352,7 @@ def attack(attribute, attack_skill, combat_ability, defense, talents, dual_wield
       plt.show()
 
 
-  return probabilities, damage_suffered
+  return results
 
 
 

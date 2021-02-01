@@ -82,8 +82,6 @@ def test_full(dice_pool, skill, dn, verbose=True):
     # track probabilities and foci count
     probabilities[i,-1,0] += base_prob
     probabilities[i+1:i+skill[1]+1,:-1,1:] += foci_prob
-  
-  assert(abs(np.sum(probabilities) - 1) < 0.01)
 
   if verbose:
     print('Success likelihood: {:2.2%}'.format(np.sum(probabilities[dn[1]:,:,:])))
@@ -94,9 +92,6 @@ def test_full(dice_pool, skill, dn, verbose=True):
     plt.xlabel('Number of Successes')
     plt.ylabel('Likelihood')
     plt.show()
-
-    # for prob in probabilities[:dice_pool+1]:
-    #   print('{:2.2%}'.format(prob))
 
   if skill[1] > 0:
     return probabilities[:-skill[1],:,:]
@@ -114,9 +109,7 @@ def test(dice_pool, skill, dn, verbose=True):
 
 
 def extended_test(dice_pool, skill, dn, verbose=True):
-  if type(dice_pool) == list and type(skill[0]) != list:
-    raise Exception('dice_pool type and skill type incompatible')
-  elif type(dice_pool) == list:
+  if type(dice_pool) == list:
     probs_set = []
     for dp, sk in zip(dice_pool, skill):
       probs_set.append(test(dp, sk, dn, verbose=False))
@@ -143,9 +136,6 @@ def extended_test(dice_pool, skill, dn, verbose=True):
     plt.xlabel('Number of Successes')
     plt.ylabel('Likelihood')
     plt.show()
-
-    # for prob in probabilities:
-    #   print('{:2.2%}'.format(prob))
 
   return probabilities[:dice_pool+1]
 
