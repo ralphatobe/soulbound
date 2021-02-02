@@ -1,3 +1,4 @@
+import os
 import tkinter as tk
 from tkinter import font as tkfont
 from tkinter import ttk
@@ -13,6 +14,17 @@ from utils import test, extended_test
 TRAITS_ALL = ['Cleave', 'Ineffective', 'Penetrating', 'Rend']
 TALENTS_ALL = ['Ambidextrous', 'Backstab', 'Barazakdum, the Doom-Oath', 'Battle Rage', 'Blood Frenzy', 'Crushing Blow', 'Gunslinger', 'Heavy Hitter', 'Immense Strikes', 'Immense Swing', 'Martial Memories', 'Mounted Combatant', 'Patient Strike', 'Pierce Armour', 'Relentless Assault', 'Sever', 'Sigmar\'s Judgement', 'Star-Fated Arrow', 'The Bigger They Are', 'Underdog']
 ABILITY_LEVELS = ['Poor', 'Average', 'Good', 'Great', 'Superb', 'Extraordinary']
+
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 
 
@@ -61,7 +73,9 @@ class StartPage(tk.Frame):
     self.title_font = tkfont.Font(family='Helvetica', size=16, weight="bold", slant="italic")
     # frame = tk.Frame()
 
-    load = Image.open("soulbound_logo.png")
+
+    path = resource_path("soulbound_logo.png")
+    load = Image.open(path)
     render = ImageTk.PhotoImage(load)
     img = tk.Label(self, image=render)
     img.image = render
@@ -640,7 +654,7 @@ class DamageCalculator(tk.Frame):
     self.combat.set('')
     self.defence.set('')
     
-    frm.grid(row=2, column=0)
+    frm.grid(row=3, column=0)
 
 
     # talents
@@ -656,7 +670,7 @@ class DamageCalculator(tk.Frame):
       self.talent_buttons[talent] = tk.Button(frm, text=talent, command=lambda tal=talent: self.press_talent(tal))
       self.talent_buttons[talent].grid(row=int(i/4) + 1, column=int(i%4), sticky='NSEW')
 
-    frm.grid(row=1, column=0)
+    frm.grid(row=1, column=0, columnspan=2, padx=3)
 
 
     # weapon traits
@@ -666,13 +680,13 @@ class DamageCalculator(tk.Frame):
     frm = tk.Frame(self)
 
     lbl = tk.Label(frm, text='Weapon Traits')
-    lbl.grid(row=0, columnspan=1)
+    lbl.grid(row=0, column=0, columnspan=4)
 
     for i, trait in enumerate(TRAITS_ALL):
       self.trait_buttons[trait] = tk.Button(frm, text=trait, command=lambda tra=trait: self.press_trait(tra))
-      self.trait_buttons[trait].grid(row=i+1, sticky='NSEW')
+      self.trait_buttons[trait].grid(row=1, column=i, sticky='NSEW')
 
-    frm.grid(row=1, column=1)
+    frm.grid(row=2, column=0, columnspan=2, padx=3)
 
 
     # other necessary values
@@ -732,7 +746,7 @@ class DamageCalculator(tk.Frame):
     self.tgt_armour.set('')
     self.dual_wield.set(False)
 
-    frm.grid(row=2, column=1)
+    frm.grid(row=3, column=1)
 
 
     # figure 
@@ -745,7 +759,7 @@ class DamageCalculator(tk.Frame):
     self.canvas.draw()
     self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
-    frm.grid(row=1, rowspan=2, column=2, padx=3, pady=3)
+    frm.grid(row=1, rowspan=3, column=2, padx=3, pady=3)
 
 
     # results and figure navigation
@@ -777,7 +791,7 @@ class DamageCalculator(tk.Frame):
     self.succ_exp.set('')
     self.results_desc.set('0 of 0')
     
-    frm.grid(row=3, column=2)
+    frm.grid(row=4, column=2)
 
 
     # navigation
@@ -785,11 +799,11 @@ class DamageCalculator(tk.Frame):
 
     btn = tk.Button(frm, text="Go to the start page",
                     command=lambda: controller.show_frame("StartPage"))
-    btn.grid(row=5, column=0, padx=30)
+    btn.grid(row=0, column=0, padx=30)
 
     btn = tk.Button(frm, text="Reset",
                     command=lambda: self.reset())
-    btn.grid(row=5, column=1, padx=30)
+    btn.grid(row=0, column=1, padx=30)
 
     btn = tk.Button(frm, text="Calculate!",
                     command=lambda attribute=self.attri, 
@@ -801,9 +815,9 @@ class DamageCalculator(tk.Frame):
                                    weapon_damage=self.wpn_damage, 
                                    weapon_traits=self.traits, 
                                    armour=self.tgt_armour: self.calculate(attribute, attack_skill, combat_ability, defense, talents, dual_wielding, weapon_damage, weapon_traits, armour))
-    btn.grid(row=5, column=2, padx=30)
+    btn.grid(row=0, column=2, padx=30)
 
-    frm.grid(row=5, column=0, columnspan=3)
+    frm.grid(row=5, column=0, columnspan=4)
 
 
   def reset(self):

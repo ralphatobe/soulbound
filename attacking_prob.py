@@ -324,7 +324,7 @@ def attack(attribute, attack_skill, combat_ability, defense, talents, dual_wield
       plt.ylabel('Likelihood')
       plt.show()
 
-    if 'Crushing Blow' in weapon_traits:
+    if 'Crushing Blow' in talents:
       print('Crushing Blow likelihood: {:2.2%}'.format(np.sum(probs[:,1:])))
 
       plt.bar(['Failure', 'Success'], [np.sum(probs[:,0]), np.sum(probs[:,1:])])
@@ -343,7 +343,7 @@ def attack(attribute, attack_skill, combat_ability, defense, talents, dual_wield
       plt.ylabel('Likelihood')
       plt.show()
 
-    if 'Sever' in weapon_traits:
+    if 'Sever' in talents:
       print('Sever likelihood: {:2.2%}'.format(np.sum(probs[:,1:])))
 
       plt.bar(['Failure', 'Success'], [np.sum(probs[:,0]), np.sum(probs[:,1:])])
