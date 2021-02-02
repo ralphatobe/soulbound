@@ -71,7 +71,6 @@ class StartPage(tk.Frame):
     btn_atk = tk.Button(master=frm_atk, text='Attack Probability Calculator', 
                         command=lambda: controller.show_frame("DamageCalculator"),
                         font=self.title_font)
-    # btn_atk.bind("<Button-1>", atk_prob_calc)
     btn_atk.pack(fill=tk.BOTH, expand=True)
     frm_atk.pack(side=tk.LEFT, expand=True)
 
@@ -79,7 +78,6 @@ class StartPage(tk.Frame):
     btn_tst = tk.Button(master=frm_tst, text='Regular Test Calculator', 
                         command=lambda: controller.show_frame("TestRegular"),
                         font=self.title_font)
-    # btn_tst.bind("<Button-1>", reg_test_calc)
     btn_tst.pack(fill=tk.BOTH, expand=True)
     frm_tst.pack(side=tk.LEFT, expand=True)
 
@@ -87,15 +85,6 @@ class StartPage(tk.Frame):
     btn_ext = tk.Button(master=frm_ext, text='Extended Test Calculator', 
                         command=lambda: controller.show_frame("TestExtended"),
                         font=self.title_font)
-    # btn_ext.bind("<Button-1>", ext_test_calc)
-    btn_ext.pack(fill=tk.BOTH, expand=True)
-    frm_ext.pack(side=tk.LEFT, expand=True)
-
-    frm_ext = tk.Frame(self, borderwidth=5)
-    btn_ext = tk.Button(master=frm_ext, text='Custom Extended Test Calculator', 
-                        command=lambda: controller.show_frame("TestExtendedCustom"),
-                        font=self.title_font)
-    # btn_ext.bind("<Button-1>", ext_test_calc)
     btn_ext.pack(fill=tk.BOTH, expand=True)
     frm_ext.pack(side=tk.LEFT, expand=True)
 
@@ -213,14 +202,14 @@ class TestRegular(tk.Frame):
 
     frm_fig.grid(row=1, rowspan=4, column=1, padx=3, pady=3)
 
-    button = tk.Button(self, text="Go to the start page",
+    btn = tk.Button(self, text="Go to the start page",
                        command=lambda: controller.show_frame("StartPage"))
-    button.grid(row=5, column=0)
+    btn.grid(row=5, column=0)
 
 
-    button = tk.Button(self, text="Calculate!",
+    btn = tk.Button(self, text="Calculate!",
                        command=lambda attribute=self.attri, training=self.train, focus=self.focus, dn_0=self.dn_0, dn_1=self.dn_1 : self.calculate(attribute, training, focus, dn_0, dn_1))
-    button.grid(row=5, column=1)
+    btn.grid(row=5, column=1)
 
 
   def calculate(self, attribute, training, focus, dn_0, dn_1):
@@ -248,9 +237,9 @@ class TestExtended(tk.Frame):
 
     # title
     title = tk.Label(self, text="Extended Test Calculator", font=controller.title_font)
-    title.grid(row=0, columnspan=2)
+    title.grid(row=0, columnspan=3)
 
-
+    # attribute
     frm_attri = tk.Frame(self)
 
     lbl_attri = tk.Label(frm_attri, text='Target Attribute:')
@@ -294,6 +283,7 @@ class TestExtended(tk.Frame):
     frm_skill.grid(row=2, column=0)
 
 
+    # difficulty number
     frm_dn = tk.Frame(self)
 
     lbl_dn = tk.Label(frm_dn, text='Difficulty Number -')
@@ -315,9 +305,7 @@ class TestExtended(tk.Frame):
     frm_dn.grid(row=3, column=0)
 
 
-
-
-    # skill values
+    # Results
     frm_results = tk.Frame(self)
 
     lbl_results = tk.Label(frm_results, text='Success Likelihood:')
@@ -339,6 +327,7 @@ class TestExtended(tk.Frame):
     frm_results.grid(row=4, column=0)
 
 
+    # figure
     frm_fig = tk.Frame(self)
 
     self.fig = Figure(figsize=(5, 4), dpi=100)
@@ -348,17 +337,23 @@ class TestExtended(tk.Frame):
     self.canvas.draw()
     self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
-    frm_fig.grid(row=1, rowspan=4, column=1, padx=3, pady=3)
+    frm_fig.grid(row=1, rowspan=4, column=1, columnspan=2, padx=3, pady=3)
 
 
-    button = tk.Button(self, text="Go to the start page",
+    # navigation buttons
+    btn = tk.Button(self, text="Go to the start page",
                        command=lambda: controller.show_frame("StartPage"))
-    button.grid(row=5, column=0)
+    btn.grid(row=5, column=0)
 
 
-    button = tk.Button(self, text="Calculate!",
+    btn = tk.Button(self, text="Calculate!",
                        command=lambda attribute=self.attri, training=self.train, focus=self.focus, dn_0=self.dn_0, dn_1=self.dn_1 : self.calculate(attribute, training, focus, dn_0, dn_1))
-    button.grid(row=5, column=1)
+    btn.grid(row=5, column=1)
+
+
+    btn = tk.Button(self, text='Custom Extended Test', 
+                        command=lambda: controller.show_frame("TestExtendedCustom"))
+    btn.grid(row=5, column=2)
 
 
   def calculate(self, attribute, training, focus, dn_0, dn_1):
@@ -387,7 +382,7 @@ class TestExtendedCustom(tk.Frame):
 
     # title
     title = tk.Label(self, text="Custom Extended Test Calculator", font=controller.title_font)
-    title.grid(row=0, columnspan=2)
+    title.grid(row=0, columnspan=3)
 
 
     frm_attri = tk.Frame(self)
@@ -534,17 +529,22 @@ class TestExtendedCustom(tk.Frame):
     self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
 
-    frm_fig.grid(row=1, rowspan=4, column=1, padx=3, pady=3)
+    frm_fig.grid(row=1, rowspan=4, column=1, columnspan=2, padx=3, pady=3)
 
 
-    button = tk.Button(self, text="Go to the start page",
+    btn = tk.Button(self, text="Go to the start page",
                        command=lambda: controller.show_frame("StartPage"))
-    button.grid(row=5, column=0)
+    btn.grid(row=5, column=0)
 
 
-    button = tk.Button(self, text="Calculate!",
+    btn = tk.Button(self, text="Calculate!",
                        command=lambda attribute=self.attri, training=self.train, focus=self.focus, dn_0=self.dn_0, dn_1=self.dn_1 : self.calculate(attribute, training, focus, dn_0, dn_1))
-    button.grid(row=5, column=1)
+    btn.grid(row=5, column=1)
+
+
+    btn = tk.Button(self, text='Standard Extended Test', 
+                        command=lambda: controller.show_frame("TestExtended"))
+    btn.grid(row=5, column=2)
 
 
   def calculate(self, attribute, training, focus, dn_0, dn_1):
@@ -636,42 +636,42 @@ class DamageCalculator(tk.Frame):
     self.attri = tk.IntVar()
     lbl = tk.Label(miscellaneous, text='Attack Attribute: ')
     lbl.grid(row=0, column=0)
-    cbx = ttk.Combobox(miscellaneous, textvariable=self.attri)
-    cbx['values'] = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
-    cbx.current(0)
-    cbx.grid(row=0, column=1)
+    self.cbx_att = ttk.Combobox(miscellaneous, textvariable=self.attri)
+    self.cbx_att['values'] = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+    self.cbx_att.current(0)
+    self.cbx_att.grid(row=0, column=1)
 
     self.sk_train = tk.IntVar()
     lbl = tk.Label(miscellaneous, text='Attack Skill Training: ')
     lbl.grid(row=1, column=0)
-    cbx = ttk.Combobox(miscellaneous, textvariable=self.sk_train)
-    cbx['values'] = (0, 1, 2, 3)
-    cbx.current(0)
-    cbx.grid(row=1, column=1)
+    self.cbx_trn = ttk.Combobox(miscellaneous, textvariable=self.sk_train)
+    self.cbx_trn['values'] = (0, 1, 2, 3)
+    self.cbx_trn.current(0)
+    self.cbx_trn.grid(row=1, column=1)
 
     self.sk_focus = tk.IntVar()
     lbl = tk.Label(miscellaneous, text='Attack Skill Focus: ')
     lbl.grid(row=2, column=0)
-    cbx = ttk.Combobox(miscellaneous, textvariable=self.sk_focus)
-    cbx['values'] = (0, 1, 2, 3)
-    cbx.current(0)
-    cbx.grid(row=2, column=1)
+    self.cbx_foc = ttk.Combobox(miscellaneous, textvariable=self.sk_focus)
+    self.cbx_foc['values'] = (0, 1, 2, 3)
+    self.cbx_foc.current(0)
+    self.cbx_foc.grid(row=2, column=1)
 
     self.wpn_damage = tk.StringVar()
     lbl = tk.Label(miscellaneous, text='Weapon Damage: ')
     lbl.grid(row=3, column=0)
-    cbx = ttk.Combobox(miscellaneous, textvariable=self.wpn_damage)
-    cbx['values'] = ('0+S','1+S','2+S','3+S','4+S')
-    cbx.current(0)
-    cbx.grid(row=3, column=1)
+    self.cbx_dmg = ttk.Combobox(miscellaneous, textvariable=self.wpn_damage)
+    self.cbx_dmg['values'] = ('0+S','1+S','2+S','3+S','4+S')
+    self.cbx_dmg.current(0)
+    self.cbx_dmg.grid(row=3, column=1)
 
     self.tgt_armour = tk.IntVar()
     lbl = tk.Label(miscellaneous, text='Target Armour: ')
     lbl.grid(row=4, column=0)
-    cbx = ttk.Combobox(miscellaneous, textvariable=self.tgt_armour)
-    cbx['values'] = (0, 1, 2, 3, 4, 5)
-    cbx.current(0)
-    cbx.grid(row=4, column=1)
+    self.cbx_arm = ttk.Combobox(miscellaneous, textvariable=self.tgt_armour)
+    self.cbx_arm['values'] = (0, 1, 2, 3, 4, 5)
+    self.cbx_arm.current(0)
+    self.cbx_arm.grid(row=4, column=1)
 
     self.dual_wield = tk.BooleanVar()
     lbl = tk.Label(miscellaneous, text='Dual Wielding: ')
@@ -736,11 +736,15 @@ class DamageCalculator(tk.Frame):
 
 
 
-    button = tk.Button(self, text="Go to the start page",
+    btn = tk.Button(self, text="Go to the start page",
                        command=lambda: controller.show_frame("StartPage"))
-    button.grid(row=5, column=0)
+    btn.grid(row=5, column=0)
 
-    button = tk.Button(self, text="Calculate!",
+    btn = tk.Button(self, text="Reset",
+                       command=lambda: self.reset())
+    btn.grid(row=5, column=1)
+
+    btn = tk.Button(self, text="Calculate!",
                        command=lambda attribute=self.attri, 
                                       attack_skill=(self.sk_train, self.sk_focus), 
                                       combat_ability=self.combat, 
@@ -750,8 +754,25 @@ class DamageCalculator(tk.Frame):
                                       weapon_damage=self.wpn_damage, 
                                       weapon_traits=self.traits, 
                                       armour=self.tgt_armour: self.calculate(attribute, attack_skill, combat_ability, defense, talents, dual_wielding, weapon_damage, weapon_traits, armour))
-    button.grid(row=5, column=1)
+    btn.grid(row=5, column=2)
 
+
+  def reset(self):
+    for talent in self.talents:
+      self.talent_buttons[talent].configure(background='SystemButtonFace')
+    self.talents = []
+
+    for trait in self.traits:
+      self.trait_buttons[trait].configure(background='SystemButtonFace')
+    self.traits = []
+
+    self.cbx_att.current(0)
+    self.cbx_trn.current(0)
+    self.cbx_foc.current(0)
+    self.cbx_dmg.current(0)
+    self.cbx_arm.current(0)
+
+    self.dual_wield.set(False)
 
 
   def press_talent(self, talent):
