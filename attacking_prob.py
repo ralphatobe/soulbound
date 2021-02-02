@@ -275,7 +275,7 @@ def attack(attribute, attack_skill, combat_ability, defense, talents, dual_wield
                     'Cleave Damage',
                     'Likelihood'])
 
-  if 'Crushing Blow' in weapon_traits:
+  if 'Crushing Blow' in talents:
     results.append(['Crushing Blow Likelihood: {:2.2%}'.format(np.sum(probs[:,1:])),
                     '',
                     ['Failure', 'Success'],
@@ -293,7 +293,7 @@ def attack(attribute, attack_skill, combat_ability, defense, talents, dual_wield
                     'Armour Rended',
                     'Likelihood'])
 
-  if 'Sever' in weapon_traits:
+  if 'Sever' in talents:
     results.append(['Sever Likelihood: {:2.2%}'.format(np.sum(probs[:,1:])),
                     '',
                     ['Failure', 'Success'],
