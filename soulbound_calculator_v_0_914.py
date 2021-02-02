@@ -762,11 +762,9 @@ class DamageCalculator(tk.Frame):
     frm.grid(row=1, rowspan=3, column=2, padx=3, pady=3)
 
 
-    # results and figure navigation
-    self.results = []
+    # results 
     self.succ_lik = tk.StringVar()
     self.succ_exp = tk.StringVar()
-    self.results_desc = tk.StringVar()
 
     frm = tk.Frame(self)
 
@@ -775,6 +773,18 @@ class DamageCalculator(tk.Frame):
 
     lbl = tk.Label(frm, textvariable=self.succ_exp)
     lbl.grid(row=1, column=0)
+
+    self.succ_lik.set('')
+    self.succ_exp.set('')
+    
+    frm.grid(row=4, column=0, columnspan=2)
+
+
+    # figure navigation
+    self.results = []
+    self.results_desc = tk.StringVar()
+
+    frm = tk.Frame(self)
 
     btn = tk.Button(frm, text='<',
                     command=lambda: self.press_left())
@@ -787,8 +797,6 @@ class DamageCalculator(tk.Frame):
                     command=lambda: self.press_right())
     btn.grid(row=0, rowspan=2, column=3, padx=3)
     
-    self.succ_lik.set('')
-    self.succ_exp.set('')
     self.results_desc.set('0 of 0')
     
     frm.grid(row=4, column=2)
