@@ -660,6 +660,8 @@ class DamageCalculator(tk.Frame):
     # talents
     self.talents = []
     self.talent_buttons = {}
+    self.br_inc = tk.IntVar()
+    self.bf_inc = tk.IntVar()
 
     frm = tk.Frame(self)
 
@@ -667,8 +669,18 @@ class DamageCalculator(tk.Frame):
     lbl.grid(row=0, columnspan=4)
 
     for i, talent in enumerate(TALENTS_ALL):
-      self.talent_buttons[talent] = tk.Button(frm, text=talent, command=lambda tal=talent: self.press_talent(tal))
-      self.talent_buttons[talent].grid(row=int(i/4) + 1, column=int(i%4), sticky='NSEW')
+      if talent == 'Battle Rage': 
+        self.talent_buttons[talent] = tk.Button(frm, text=talent, command=lambda variable=self.br_inc , tal=talent: self.popup(tal, variable))
+        self.talent_buttons[talent].grid(row=int(i/4) + 1, column=int(i%4), sticky='NSEW')
+      elif talent == 'Blood Frenzy':
+        self.talent_buttons[talent] = tk.Button(frm, text=talent, command=lambda variable=self.bf_inc, tal=talent: self.popup(tal, variable))
+        self.talent_buttons[talent].grid(row=int(i/4) + 1, column=int(i%4), sticky='NSEW')
+      else:
+        self.talent_buttons[talent] = tk.Button(frm, text=talent, command=lambda tal=talent: self.press_talent(tal))
+        self.talent_buttons[talent].grid(row=int(i/4) + 1, column=int(i%4), sticky='NSEW')
+
+    self.br_inc.set(0)
+    self.bf_inc.set(0)
 
     frm.grid(row=1, column=0, columnspan=2, padx=3)
 
@@ -814,15 +826,7 @@ class DamageCalculator(tk.Frame):
     btn.grid(row=0, column=1, padx=30)
 
     btn = tk.Button(frm, text="Calculate!",
-                    command=lambda attribute=self.attri, 
-                                   attack_skill=(self.sk_train, self.sk_focus), 
-                                   combat_ability=self.combat, 
-                                   defense=self.defence, 
-                                   talents=self.talents, 
-                                   dual_wielding=self.dual_wield, 
-                                   weapon_damage=self.wpn_damage, 
-                                   weapon_traits=self.traits, 
-                                   armour=self.tgt_armour: self.calculate(attribute, attack_skill, combat_ability, defense, talents, dual_wielding, weapon_damage, weapon_traits, armour))
+                    command=lambda : self.calculate())
     btn.grid(row=0, column=2, padx=30)
 
     frm.grid(row=5, column=0, columnspan=4)
@@ -832,6 +836,9 @@ class DamageCalculator(tk.Frame):
     for talent in self.talents:
       self.talent_buttons[talent].configure(background='SystemButtonFace')
     self.talents = []
+
+    self.br_inc.set(0)
+    self.bf_inc.set(0)
 
     for trait in self.traits:
       self.trait_buttons[trait].configure(background='SystemButtonFace')
@@ -864,7 +871,33 @@ class DamageCalculator(tk.Frame):
       self.talent_buttons[talent].configure(background='SystemButtonFace')
       self.talents.remove(talent)
 
-    print(self.talents)
+  def popup(self, talent, variable):
+    if self.talent_buttons[talent].cget('bg') == 'SystemButtonFace':
+      self.talent_buttons[talent].configure(background='LightBlue2')
+      self.talents.append(talent)
+
+      win = tk.Toplevel()
+      win.wm_title("Window")
+
+      lbl = tk.Label(win, text="Increase your Combat Ability level by:")
+      lbl.grid(row=0, column=0)
+
+      cbx = ttk.Combobox(win, textvariable=variable, width=3)
+      cbx['values'] = (1, 2, 3, 4, 5)
+      cbx.grid(row=0, column=1)
+
+      b = ttk.Button(win, text="Exit", command=win.destroy)
+      b.grid(row=1, column=0, columnspan=2)
+    else:
+      self.talent_buttons[talent].configure(background='SystemButtonFace')
+
+      self.talents[:] = [x for x in self.talents if x != talent]
+
+      if talent == 'Battle Rage':
+        self.br_inc.set(0)
+      elif talent == 'Blood Frenzy':
+        self.bf_inc.set(0)
+
 
   def press_trait(self, trait):
     if self.trait_buttons[trait].cget('bg') == 'SystemButtonFace':
@@ -874,7 +907,6 @@ class DamageCalculator(tk.Frame):
       self.trait_buttons[trait].configure(background='SystemButtonFace')
       self.traits.remove(trait)
 
-    print(self.traits)
 
   def press_left(self):
     if len(self.results) > 1:
@@ -910,13 +942,39 @@ class DamageCalculator(tk.Frame):
       self.succ_lik.set(self.results[self.idx][0])
       self.succ_exp.set(self.results[self.idx][1])
 
-  def calculate(self, attribute, attack_skill, combat_ability, defense, talents, dual_wielding, weapon_damage, weapon_traits, armour, verbose=True):
+  def calculate(self):
 
-    print(talents, weapon_traits)
+    for variable in [self.attri, self.sk_train, self.sk_focus, self.tgt_armour]:
+      try:
+        variable.get()
+      except:
+        variable.set(0)      
 
-    self.results = attack(attribute.get(), (attack_skill[0].get(), attack_skill[1].get()), ABILITY_LEVELS.index(combat_ability.get()), ABILITY_LEVELS.index(defense.get()), talents, dual_wielding.get(), int(weapon_damage.get()[0]), weapon_traits, armour.get(), verbose=False)
+    for variable in [self.combat, self.defence]:
+      if variable.get() == '':
+        variable.set('Poor')
 
-    print(self.results)
+    if self.wpn_damage.get() == '':
+      self.wpn_damage.set('0+S')
+
+    if 'Battle Rage' in self.talents:
+      for _ in range(self.br_inc.get()-1):
+        self.talents.append('Battle Rage')
+
+    if 'Blood Frenzy' in self.talents:
+      for _ in range(self.bf_inc.get()-1):
+        self.talents.append('Blood Frenzy')
+
+    self.results = attack(self.attri.get(), 
+                          (self.sk_train.get(), self.sk_focus.get()), 
+                          ABILITY_LEVELS.index(self.combat.get()), 
+                          ABILITY_LEVELS.index(self.defence.get()), 
+                          self.talents, 
+                          self.dual_wield.get(), 
+                          int(self.wpn_damage.get()[0]), 
+                          self.traits, 
+                          self.tgt_armour.get(), 
+                          verbose=False)
 
     if len(self.results) > 0:
       self.idx = 0

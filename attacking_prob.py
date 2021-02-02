@@ -106,6 +106,16 @@ def attack(attribute, attack_skill, combat_ability, defense, talents, dual_wield
   if 'Backstab' in talents:
     armour = 0
 
+  # full battle rage implementation
+  if 'Battle Rage' in talents:
+    for _ in range(talents.count('Battle Rage')):
+      combat_ability = min(combat_ability+1, 5)
+
+  # full blood frenzy implementation
+  if 'Blood Frenzy' in talents:
+    for _ in range(talents.count('Blood Frenzy')):
+      combat_ability = min(combat_ability+1, 5)
+
   # full gunslinger implementation
   if 'Gunslinger' in talents:
     # combat ability starts at 0 (Poor)
