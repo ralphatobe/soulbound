@@ -711,6 +711,12 @@ class DamageCalculator(tk.Frame):
       self.trait_buttons[trait] = tk.Button(frm, text=trait, command=lambda tra=trait: self.press_trait(tra))
       self.trait_buttons[trait].grid(row=1, column=i, sticky='NSEW')
 
+    lbl = tk.Label(frm, text='Other')
+    lbl.grid(row=0, column=4, padx=40)
+
+    self.trait_buttons['Charge'] = tk.Button(frm, text='Charge', command=lambda tra='Charge': self.press_trait(tra))
+    self.trait_buttons['Charge'].grid(row=1, column=4, sticky='NSEW', padx=40)
+
     frm.grid(row=2, column=0, columnspan=2, padx=3)
 
 

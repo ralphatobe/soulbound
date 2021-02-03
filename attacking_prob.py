@@ -184,22 +184,26 @@ def attack(attribute, attack_skill, combat_ability, defense, talents, dual_wield
     armour = max(0, armour-1)
 
   # calculate the base dice pool size
-  dice_pool_base = attribute + attack_skill[0]
+  dice_pool = attribute + attack_skill[0]
   
   # calculate the base damage range
-  damage_range = dice_pool_base + attack_skill[1]
+  damage_range = dice_pool + attack_skill[1]
 
   # modify weapon damage for dual wielding
   if dual_wielding:
     weapon_damage = weapon_damage * 2
 
-  # add ambidextrous bonus
+  # full ambidextrous implementation
   if 'Ambidextrous' in talents:
-    ambidextrous = 6
-    damage_range += 6
-  else:
-    ambidextrous = 1
+    dice_pool += 1
+    damage_range += 1
 
+  # full charge implementation
+  if 'Charge' in weapon_traits:
+    dice_pool += 1
+    damage_range += 1
+
+  # pierce armour setup
   if 'Pierce Armour' in talents:
     damage_range += armour
 
@@ -208,37 +212,25 @@ def attack(attribute, attack_skill, combat_ability, defense, talents, dual_wield
   print('DN:', dn)
 
   # initialize full attack probabilities
-  probabilities = np.zeros((ambidextrous, damage_range+1, damage_range+1))
-  # iterate over ambidextrous options
-  # this method is overly brute force, but a better method would make my head hurt
-  for i in range(ambidextrous):
-    # modify dice pool if ambidextrous is active
-    if 'Ambidextrous' in talents:
-      dice_pool = dice_pool_base + i + 1
-    else:
-      dice_pool = dice_pool_base
+  probabilities = np.zeros((damage_range+1, damage_range+1))
 
-    # compute hit likelihoods
-    succ_prob = test_full(dice_pool, attack_skill, [dn], verbose=False)
-    succ_prob = six_prob_calculation(succ_prob, dn, damage_range)
-    assert(abs(np.sum(succ_prob) - 1.0) < 0.01)
+  # compute hit likelihoods
+  succ_prob = test_full(dice_pool, attack_skill, [dn], verbose=False)
+  succ_prob = six_prob_calculation(succ_prob, dn, damage_range)
 
-    # integrate armour piercing modifications
-    if 'Pierce Armour' in talents:
-      for num_six, probs in enumerate(succ_prob):
-        if min(num_six,armour) > 0:
-          probabilities[i,min(num_six,armour):,num_six] += probs[:-min(num_six,armour)]
-          probabilities[i,-1,num_six] += np.sum(probs[-min(num_six,armour):])
-        else:
-          probabilities[i,:,num_six] = probs
-    else:
-      probabilities[i,:,:] = np.swapaxes(succ_prob, 0, 1)
+  # integrate armour piercing modifications
+  if 'Pierce Armour' in talents:
+    for num_six, probs in enumerate(succ_prob):
+      if min(num_six,armour) > 0:
+        probabilities[min(num_six,armour):,num_six] += probs[:-min(num_six,armour)]
+        probabilities[-1,num_six] += np.sum(probs[-min(num_six,armour):])
+      else:
+        probabilities[:,num_six] = probs
+  else:
+    probabilities[:,:] = np.swapaxes(succ_prob, 0, 1)
 
-    assert(abs((np.sum(probabilities[i,:]) - 1.0)) < 0.01)
-
-  # combine all ambidextrous options
-  probs = np.average(probabilities, axis=0)
-  probabilities = np.sum(probs, axis=-1)
+  # flatten probabilities to just success likelihoods
+  probabilities = np.sum(probabilities, axis=-1)
 
   # create damage array
   damage = np.array(range(damage_range+1)) + np.array([0] + [weapon_damage]*(damage_range))
