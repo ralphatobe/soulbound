@@ -230,6 +230,7 @@ def attack(attribute, attack_skill, combat_ability, defense, talents, dual_wield
     probabilities[:,:] = np.swapaxes(succ_prob, 0, 1)
 
   # flatten probabilities to just success likelihoods
+  probs = probabilities
   probabilities = np.sum(probabilities, axis=-1)
 
   # create damage array
