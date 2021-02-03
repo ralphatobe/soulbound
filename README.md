@@ -19,9 +19,6 @@ Once you've done that much, you can edit the individual .py files, or you can te
 I generally implement features as they become useful to me, so these additional tasks may not be implemented in order.
 
   * Extended tests should be modified to accomodate the Kharadron crafting process (as implemented by my group). Since a new item can be started after the current one is finished, there is nontrivial strategy involved in how the player allocates focus during the extended Test. Codifying this strategy is complex and I no longer play a Kharadron, so it's unlikely I'll work on this soon.
-  * Combat-focused Talents:
-    * Battle Rage (this one will have to be a tuple dictating how you change combat abilities)
-    * Blood Frenzy (this involves consecutive attacks, and will likely take a bit of work)
   * Errata:
     * Pierce Armour may be able to pierce the doubled armour from dual wielding. I'll have to discuss with my DM to get a ruling.
 
@@ -38,6 +35,8 @@ Expansions that have been implemented. If a function is more complicated than yo
     * Ambidextrous: Added to attacking_prob. I remain convinced that this interpretation of Ambidextrous is wrong, but it's how we use it with my party. We roll 1d6 and add that many d6's to the dice pool. Additionally, Ambidextrous can be active while the attacker is 'not dual wielding' and targeting a single opponent, meaning the attacker's weapon damage is not doubled, and neither is the opponent's armour.
     * Backstab: Added to attacking_prob.
     * Barazakdum, the Doom-Oath: Added to attacking_prob.
+    * Battle Rage: Added to attacking_prob.
+    * Blood Frenzy: Added to attacking_prob.
     * Crushing Blow: Added to attacking_prob.
     * Gunslinger: Added to attacking_prob.
     * Heavy Hitter: Added to attacking_prob.

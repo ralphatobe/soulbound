@@ -214,15 +214,15 @@ class TestRegular(tk.Frame):
     frm = tk.Frame(self)
 
     btn = tk.Button(frm, text="Go to the start page",
-                       command=lambda: controller.show_frame("StartPage"))
+                    command=lambda: controller.show_frame("StartPage"))
     btn.grid(row=0, column=0, padx=30)
 
     btn = tk.Button(frm, text="Reset",
-                       command=lambda: self.reset())
+                    command=lambda: self.reset())
     btn.grid(row=0, column=1, padx=30)
 
     btn = tk.Button(frm, text="Calculate!",
-                       command=lambda attribute=self.attri, training=self.train, focus=self.focus, dn=self.dn : self.calculate(attribute, training, focus, dn))
+                    command=lambda : self.calculate())
     btn.grid(row=0, column=2, padx=30)
 
     frm.grid(row=5, column=0, columnspan=2)
@@ -249,9 +249,14 @@ class TestRegular(tk.Frame):
     self.plot.cla()
 
 
-  def calculate(self, attribute, training, focus, dn):
+  def calculate(self):    
+    for variable in [self.attri, self.train, self.focus, self.dn[0], self.dn[1]]:
+      try:
+        variable.get()
+      except:
+        variable.set(0) 
 
-    probabilities = test(attribute.get()+training.get(), [training.get(), focus.get()], [dn[0].get(), dn[1].get()], verbose=False)
+    probabilities = test(self.attri.get()+self.train.get(), [self.train.get(), self.focus.get()], [self.dn[0].get(), self.dn[1].get()], verbose=False)
 
     self.plot.set_title('Success Distribution')
     self.plot.set_xlabel('Number of Successes')
@@ -261,7 +266,7 @@ class TestRegular(tk.Frame):
     self.plot.clear()
     self.plot.cla()
 
-    self.succ_lik.set('{:2.2%}'.format(np.sum(probabilities[dn_1.get():])))
+    self.succ_lik.set('{:2.2%}'.format(np.sum(probabilities[self.dn[1].get():])))
     self.succ_exp.set('{:2.3}'.format(np.matmul(range(probabilities.shape[0]), probabilities)))
 
 
@@ -341,7 +346,7 @@ class TestExtended(tk.Frame):
     frm.grid(row=3, column=0)
 
 
-    # Results
+    # results
     self.succ_lik = tk.StringVar()
     self.succ_exp = tk.StringVar()
 
@@ -379,19 +384,19 @@ class TestExtended(tk.Frame):
     frm = tk.Frame(self)
 
     btn = tk.Button(frm, text="Go to the start page",
-                       command=lambda: controller.show_frame("StartPage"))
+                    command=lambda: controller.show_frame("StartPage"))
     btn.grid(row=0, column=0, padx=30)
 
     btn = tk.Button(frm, text="Reset",
-                       command=lambda: self.reset())
+                    command=lambda: self.reset())
     btn.grid(row=0, column=1, padx=30)
 
     btn = tk.Button(frm, text="Calculate!",
-                       command=lambda attribute=self.attri, training=self.train, focus=self.focus, dn=self.dn : self.calculate(attribute, training, focus, dn))
+                    command=lambda : self.calculate())
     btn.grid(row=0, column=2, padx=30)
 
     btn = tk.Button(frm, text='Custom Extended Test', 
-                        command=lambda: controller.show_frame("TestExtendedCustom"))
+                    command=lambda: controller.show_frame("TestExtendedCustom"))
     btn.grid(row=0, column=3, padx=30)
 
     frm.grid(row=5, column=0, columnspan=2)
@@ -399,7 +404,6 @@ class TestExtended(tk.Frame):
 
     # clear all fields
     self.reset()
-
 
   def reset(self):
 
@@ -417,10 +421,14 @@ class TestExtended(tk.Frame):
     self.plot.clear()
     self.plot.cla()
 
+  def calculate(self):
+    for variable in [self.attri, self.train, self.focus, self.dn[0], self.dn[1]]:
+      try:
+        variable.get()
+      except:
+        variable.set(0) 
 
-  def calculate(self, attribute, training, focus, dn):
-
-    probabilities = extended_test(attribute.get()+training.get(), [training.get(), focus.get()], [dn[0].get(), dn[1].get()], verbose=False)
+    probabilities = extended_test(self.attri.get()+self.train.get(), [self.train.get(), self.focus.get()], [self.dn[0].get(), self.dn[1].get()], verbose=False)
 
     self.plot.set_title('Success Distribution')
     self.plot.set_xlabel('Number of Successes')
@@ -430,9 +438,8 @@ class TestExtended(tk.Frame):
     self.plot.clear()
     self.plot.cla()
 
-    self.succ_lik.set('{:2.2%}'.format(np.sum(probabilities[dn_1.get():])))
+    self.succ_lik.set('{:2.2%}'.format(np.sum(probabilities[self.dn[1].get():])))
     self.succ_exp.set('{:2.3}'.format(np.matmul(range(probabilities.shape[0]), probabilities)))
-
 
 
 
@@ -552,19 +559,19 @@ class TestExtendedCustom(tk.Frame):
     frm = tk.Frame(self)
 
     btn = tk.Button(frm, text="Go to the start page",
-                       command=lambda: controller.show_frame("StartPage"))
+                    command=lambda: controller.show_frame("StartPage"))
     btn.grid(row=0, column=0, padx=30)
 
     btn = tk.Button(frm, text="Reset",
-                       command=lambda: self.reset())
+                    command=lambda: self.reset())
     btn.grid(row=0, column=1, padx=30)
 
     btn = tk.Button(frm, text="Calculate!",
-                       command=lambda attribute=self.attri, training=self.train, focus=self.focus, dn=self.dn : self.calculate(attribute, training, focus, dn))
+                    command=lambda : self.calculate())
     btn.grid(row=0, column=2, padx=30)
 
     btn = tk.Button(frm, text='Standard Extended Test', 
-                        command=lambda: controller.show_frame("TestExtended"))
+                    command=lambda: controller.show_frame("TestExtended"))
     btn.grid(row=0, column=3, padx=30)
 
     frm.grid(row=5, column=0, columnspan=2)
@@ -599,12 +606,18 @@ class TestExtendedCustom(tk.Frame):
 
 
 
-  def calculate(self, attribute, training, focus, dn):
+  def calculate(self):    
+    for var_list in [self.attri, self.train, self.focus, self.dn]:
+      for variable in var_list:
+        try:
+          variable.get()
+        except:
+          variable.set(0)      
 
-    dice_pool = [attribute[0].get()+training[0].get(), attribute[1].get()+training[1].get(), attribute[2].get()+training[2].get()]
-    skill = [[training[0].get(), focus[0].get()], [training[1].get(), focus[1].get()], [training[2].get(), focus[2].get()]]
+    dice_pool = [self.attri[0].get()+self.train[0].get(), self.attri[1].get()+self.train[1].get(), self.attri[2].get()+self.train[2].get()]
+    skill = [[self.train[0].get(), self.focus[0].get()], [self.train[1].get(), self.focus[1].get()], [self.train[2].get(), self.focus[2].get()]]
 
-    probabilities = extended_test(dice_pool, skill, [dn[0].get(), dn[1].get()], verbose=False)
+    probabilities = extended_test(dice_pool, skill, [self.dn[0].get(), self.dn[1].get()], verbose=False)
 
     self.plot.set_title('Success Distribution')
     self.plot.set_xlabel('Number of Successes')
@@ -614,7 +627,7 @@ class TestExtendedCustom(tk.Frame):
     self.plot.clear()
     self.plot.cla()
 
-    self.succ_lik.set('{:2.2%}'.format(np.sum(probabilities[dn_1.get():])))
+    self.succ_lik.set('{:2.2%}'.format(np.sum(probabilities[self.dn[1].get():])))
     self.succ_exp.set('{:2.3}'.format(np.matmul(range(probabilities.shape[0]), probabilities)))
 
 
@@ -886,7 +899,7 @@ class DamageCalculator(tk.Frame):
       cbx['values'] = (1, 2, 3, 4, 5)
       cbx.grid(row=0, column=1)
 
-      b = ttk.Button(win, text="Exit", command=win.destroy)
+      b = ttk.Button(win, text="Done", command=win.destroy)
       b.grid(row=1, column=0, columnspan=2)
     else:
       self.talent_buttons[talent].configure(background='SystemButtonFace')
