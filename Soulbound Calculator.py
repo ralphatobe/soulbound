@@ -121,8 +121,11 @@ class TestRegular(tk.Frame):
     lbl = tk.Label(frm, text='Attribute:')
     lbl.grid(row=0, column=0)
 
-    cbx = ttk.Combobox(frm, textvariable=self.attri, width=3)
-    cbx['values'] = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+    # cbx = ttk.Combobox(frm, textvariable=self.attri, width=3)
+    # cbx['values'] = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+    # cbx.grid(row=0, column=1)
+
+    cbx = tk.Entry(frm, textvariable=self.attri, width=3)
     cbx.grid(row=0, column=1)
 
     frm.grid(row=1, column=0)
@@ -134,23 +137,29 @@ class TestRegular(tk.Frame):
 
     frm = tk.Frame(self)
 
-    for i in range(4):
-      lbl = tk.Label(frm, text=str(i))
-      lbl.grid(row=0, column=i+1)
+    # for i in range(4):
+    #   lbl = tk.Label(frm, text=str(i))
+    #   lbl.grid(row=0, column=i+1)
 
     lbl = tk.Label(frm, text='Training')
     lbl.grid(row=1, column=0)
 
-    for i in range(4):
-      rad = ttk.Radiobutton(frm, variable=self.train, value=i)
-      rad.grid(row=1, column=i+1)
+    # for i in range(4):
+    #   rad = ttk.Radiobutton(frm, variable=self.train, value=i)
+    #   rad.grid(row=1, column=i+1)
+
+    cbx = tk.Entry(frm, textvariable=self.train, width=3)
+    cbx.grid(row=1, column=1)
 
     lbl = tk.Label(frm, text='Focus')
     lbl.grid(row=2, column=0)
 
-    for i in range(4):
-      rad = ttk.Radiobutton(frm, variable=self.focus, value=i)
-      rad.grid(row=2, column=i+1)
+    # for i in range(4):
+    #   rad = ttk.Radiobutton(frm, variable=self.focus, value=i)
+    #   rad.grid(row=2, column=i+1)
+
+    cbx = tk.Entry(frm, textvariable=self.focus, width=3)
+    cbx.grid(row=2, column=1)
     
     frm.grid(row=2, column=0)
 
@@ -163,15 +172,21 @@ class TestRegular(tk.Frame):
     lbl = tk.Label(frm, text='Difficulty Number -')
     lbl.grid(row=0, column=0)
 
-    cbx = ttk.Combobox(frm, textvariable=self.dn[0], width=3)
-    cbx['values'] = (2, 3, 4, 5, 6)
+    # cbx = ttk.Combobox(frm, textvariable=self.dn[0], width=3)
+    # cbx['values'] = (2, 3, 4, 5, 6)
+    # cbx.grid(row=0, column=1)
+
+    cbx = tk.Entry(frm, textvariable=self.dn[0], width=3)
     cbx.grid(row=0, column=1)
 
     lbl = tk.Label(frm, text=':')
     lbl.grid(row=0, column=2)
 
-    cbx = ttk.Combobox(frm, textvariable=self.dn[1], width=3)
-    cbx['values'] = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14)
+    # cbx = ttk.Combobox(frm, textvariable=self.dn[1], width=3)
+    # cbx['values'] = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14)
+    # cbx.grid(row=0, column=3)
+
+    cbx = tk.Entry(frm, textvariable=self.dn[1], width=3)
     cbx.grid(row=0, column=3)
 
     frm.grid(row=3, column=0)
@@ -289,9 +304,12 @@ class TestExtended(tk.Frame):
     lbl = tk.Label(frm, text='Attribute:')
     lbl.grid(row=0, column=0)
 
-    cbx = ttk.Combobox(frm, textvariable=self.attri, width=3)
-    cbx['values'] = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
-    cbx.current(0)
+    # cbx = ttk.Combobox(frm, textvariable=self.attri, width=3)
+    # cbx['values'] = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+    # cbx.current(0)
+    # cbx.grid(row=0, column=1)
+
+    cbx = tk.Entry(frm, textvariable=self.attri, width=3)
     cbx.grid(row=0, column=1)
 
     frm.grid(row=1, column=0)
@@ -303,23 +321,29 @@ class TestExtended(tk.Frame):
 
     frm = tk.Frame(self)
 
-    for i in range(4):
-      lbl = tk.Label(frm, text=str(i))
-      lbl.grid(row=0, column=i+1)
+    # for i in range(4):
+    #   lbl = tk.Label(frm, text=str(i))
+    #   lbl.grid(row=0, column=i+1)
 
-    lbl = tk.Label(frm, text='Training')
+    lbl = tk.Label(frm, text='Training:')
     lbl.grid(row=1, column=0)
 
-    for i in range(4):
-      rad = ttk.Radiobutton(frm, variable=self.train, value=i)
-      rad.grid(row=1, column=i+1)
+    # for i in range(4):
+    #   rad = ttk.Radiobutton(frm, variable=self.train, value=i)
+    #   rad.grid(row=1, column=i+1)
 
-    lbl = tk.Label(frm, text='Focus')
+    cbx = tk.Entry(frm, textvariable=self.train, width=3)
+    cbx.grid(row=1, column=1)
+
+    lbl = tk.Label(frm, text='Focus:')
     lbl.grid(row=2, column=0)
 
-    for i in range(4):
-      rad = ttk.Radiobutton(frm, variable=self.focus, value=i)
-      rad.grid(row=2, column=i+1)
+    # for i in range(4):
+    #   rad = ttk.Radiobutton(frm, variable=self.focus, value=i)
+    #   rad.grid(row=2, column=i+1)
+
+    cbx = tk.Entry(frm, textvariable=self.focus, width=3)
+    cbx.grid(row=2, column=1)
     
     frm.grid(row=2, column=0)
 
@@ -332,15 +356,21 @@ class TestExtended(tk.Frame):
     lbl = tk.Label(frm, text='Difficulty Number -')
     lbl.grid(row=0, column=0)
 
-    cbx = ttk.Combobox(frm, textvariable=self.dn[0], width=3)
-    cbx['values'] = (2, 3, 4, 5, 6)
+    # cbx = ttk.Combobox(frm, textvariable=self.dn[0], width=3)
+    # cbx['values'] = (2, 3, 4, 5, 6)
+    # cbx.grid(row=0, column=1)
+
+    cbx = tk.Entry(frm, textvariable=self.dn[0], width=3)
     cbx.grid(row=0, column=1)
 
     lbl = tk.Label(frm, text=':')
     lbl.grid(row=0, column=2)
 
-    cbx = ttk.Combobox(frm, textvariable=self.dn[1], width=3)
-    cbx['values'] = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14)
+    # cbx = ttk.Combobox(frm, textvariable=self.dn[1], width=3)
+    # cbx['values'] = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14)
+    # cbx.grid(row=0, column=3)
+
+    cbx = tk.Entry(frm, textvariable=self.dn[1], width=3)
     cbx.grid(row=0, column=3)
 
     frm.grid(row=3, column=0)
@@ -461,12 +491,15 @@ class TestExtendedCustom(tk.Frame):
     frm = tk.Frame(self)
 
     for i in range(3):
-        lbl = tk.Label(frm, text='Attribute ' + str(i+1) + ':')
-        lbl.grid(row=i, column=0)
+      lbl = tk.Label(frm, text='Attribute ' + str(i+1) + ':')
+      lbl.grid(row=i, column=0)
 
-        cbx = ttk.Combobox(frm, textvariable=self.attri[i], width=3)
-        cbx['values'] = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
-        cbx.grid(row=i, column=1)
+      # cbx = ttk.Combobox(frm, textvariable=self.attri[i], width=3)
+      # cbx['values'] = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+      # cbx.grid(row=i, column=1)
+
+      cbx = tk.Entry(frm, textvariable=self.attri[i], width=3)
+      cbx.grid(row=i, column=1)
 
     frm.grid(row=1, column=0)
 
@@ -477,24 +510,30 @@ class TestExtendedCustom(tk.Frame):
 
     frm = tk.Frame(self)
 
-    for i in range(4):
-      lbl = tk.Label(frm, text=str(i))
-      lbl.grid(row=0, column=i+1)
+    # for i in range(4):
+    #   lbl = tk.Label(frm, text=str(i))
+    #   lbl.grid(row=0, column=i+1)
 
     for i in range(3):
-        lbl = tk.Label(frm, text='Training ' + str(i+1))
-        lbl.grid(row=(2*i)+1, column=0)
+      lbl = tk.Label(frm, text='Training ' + str(i+1) + ':')
+      lbl.grid(row=(2*i)+1, column=0)
 
-        for j in range(4):
-          rad = ttk.Radiobutton(frm, variable=self.train[i], value=j)
-          rad.grid(row=(2*i)+1, column=j+1)
+      # for j in range(4):
+      #   rad = ttk.Radiobutton(frm, variable=self.train[i], value=j)
+      #   rad.grid(row=(2*i)+1, column=j+1)
 
-        lbl = tk.Label(frm, text='Focus ' + str(i+1))
-        lbl.grid(row=2*(i+1), column=0)
+      cbx = tk.Entry(frm, textvariable=self.train[i], width=3)
+      cbx.grid(row=(2*i)+1, column=1)
 
-        for j in range(4):
-          rad = ttk.Radiobutton(frm, variable=self.focus[i], value=j)
-          rad.grid(row=2*(i+1), column=j+1)
+      lbl = tk.Label(frm, text='Focus ' + str(i+1) + ':')
+      lbl.grid(row=2*(i+1), column=0)
+
+      # for j in range(4):
+      #   rad = ttk.Radiobutton(frm, variable=self.focus[i], value=j)
+      #   rad.grid(row=2*(i+1), column=j+1)
+
+      cbx = tk.Entry(frm, textvariable=self.focus[i], width=3)
+      cbx.grid(row=2*(i+1), column=1)
     
     frm.grid(row=2, column=0)
 
@@ -507,15 +546,21 @@ class TestExtendedCustom(tk.Frame):
     lbl = tk.Label(frm, text='Difficulty Number -')
     lbl.grid(row=0, column=0)
 
-    cbx = ttk.Combobox(frm, textvariable=self.dn[0], width=3)
-    cbx['values'] = (2, 3, 4, 5, 6)
+    # cbx = ttk.Combobox(frm, textvariable=self.dn[0], width=3)
+    # cbx['values'] = (2, 3, 4, 5, 6)
+    # cbx.grid(row=0, column=1)
+
+    cbx = tk.Entry(frm, textvariable=self.dn[0], width=3)
     cbx.grid(row=0, column=1)
 
     lbl = tk.Label(frm, text=':')
     lbl.grid(row=0, column=2)
 
-    cbx = ttk.Combobox(frm, textvariable=self.dn[1], width=3)
-    cbx['values'] = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14)
+    # cbx = ttk.Combobox(frm, textvariable=self.dn[1], width=3)
+    # cbx['values'] = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14)
+    # cbx.grid(row=0, column=3)
+
+    cbx = tk.Entry(frm, textvariable=self.dn[1], width=3)
     cbx.grid(row=0, column=3)
 
     frm.grid(row=3, column=0)
@@ -732,37 +777,59 @@ class DamageCalculator(tk.Frame):
 
     lbl = tk.Label(frm, text='Attack Attribute: ')
     lbl.grid(row=0, column=0)
-    cbx = ttk.Combobox(frm, textvariable=self.attri)
-    cbx['values'] = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
-    cbx.current(0)
+    # cbx = ttk.Combobox(frm, textvariable=self.attri)
+    # cbx['values'] = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+    # cbx.current(0)
+    # cbx.grid(row=0, column=1)
+
+    cbx = tk.Entry(frm, textvariable=self.attri)
     cbx.grid(row=0, column=1)
 
     lbl = tk.Label(frm, text='Attack Skill Training: ')
     lbl.grid(row=1, column=0)
-    cbx = ttk.Combobox(frm, textvariable=self.sk_train)
-    cbx['values'] = (0, 1, 2, 3)
-    cbx.current(0)
+    # cbx = ttk.Combobox(frm, textvariable=self.sk_train)
+    # cbx['values'] = (0, 1, 2, 3)
+    # cbx.current(0)
+    # cbx.grid(row=1, column=1)
+
+    cbx = tk.Entry(frm, textvariable=self.sk_train)
     cbx.grid(row=1, column=1)
 
     lbl = tk.Label(frm, text='Attack Skill Focus: ')
     lbl.grid(row=2, column=0)
-    cbx = ttk.Combobox(frm, textvariable=self.sk_focus)
-    cbx['values'] = (0, 1, 2, 3)
-    cbx.current(0)
+    # cbx = ttk.Combobox(frm, textvariable=self.sk_focus)
+    # cbx['values'] = (0, 1, 2, 3)
+    # cbx.current(0)
+    # cbx.grid(row=2, column=1)
+
+    cbx = tk.Entry(frm, textvariable=self.sk_focus)
     cbx.grid(row=2, column=1)
 
     lbl = tk.Label(frm, text='Weapon Damage: ')
     lbl.grid(row=3, column=0)
-    cbx = ttk.Combobox(frm, textvariable=self.wpn_damage)
-    cbx['values'] = ('0+S','1+S','2+S','3+S','4+S')
-    cbx.current(0)
-    cbx.grid(row=3, column=1)
+    # cbx = ttk.Combobox(frm, textvariable=self.wpn_damage)
+    # cbx['values'] = ('0+S','1+S','2+S','3+S','4+S')
+    # cbx.current(0)
+    # cbx.grid(row=3, column=1)
+
+    subfrm = tk.Frame(frm)
+
+    cbx = tk.Entry(subfrm, textvariable=self.wpn_damage)
+    cbx.grid(row=0, column=0)
+
+    lbl = tk.Label(subfrm, text=' + S')
+    lbl.grid(row=0, column=1)
+
+    subfrm.grid(row=3, column=1)
 
     lbl = tk.Label(frm, text='Target Armour: ')
     lbl.grid(row=4, column=0)
-    cbx = ttk.Combobox(frm, textvariable=self.tgt_armour)
-    cbx['values'] = (0, 1, 2, 3, 4, 5)
-    cbx.current(0)
+    # cbx = ttk.Combobox(frm, textvariable=self.tgt_armour)
+    # cbx['values'] = (0, 1, 2, 3, 4, 5)
+    # cbx.current(0)
+    # cbx.grid(row=4, column=1)
+
+    cbx = tk.Entry(frm, textvariable=self.tgt_armour)
     cbx.grid(row=4, column=1)
 
     lbl = tk.Label(frm, text='Dual Wielding: ')

@@ -209,7 +209,6 @@ def attack(attribute, attack_skill, combat_ability, defense, talents, dual_wield
 
   # calculate the hit dn
   dn = 4 - min([max([combat_ability - defense, -2]), 2])
-  print('DN:', dn)
 
   # initialize full attack probabilities
   probabilities = np.zeros((damage_range+1, damage_range+1))
